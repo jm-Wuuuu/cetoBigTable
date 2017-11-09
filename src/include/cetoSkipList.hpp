@@ -4,7 +4,7 @@
 namespace ceto
 {
     // List define
-    template< typename KeyType, typename compareFunc >
+    template< typename KeyType, class compareFunc >
     class SkipList
     {
     public:
