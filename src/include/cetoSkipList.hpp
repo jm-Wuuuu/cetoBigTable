@@ -3,9 +3,10 @@
 #include "cetoBinData.hpp"
 #include "cetoMemMonitor.hpp"
 #include "cetoRandomGenerator.hpp"
+#include "cetoBarrier.hpp"
 namespace ceto
 {
-    // List define
+    // SkipList define
     template< typename KeyType, class Comparator >
     class SkipList
     {
@@ -13,9 +14,13 @@ namespace ceto
         explicit SkipList();
         ~SkipList();
 
-        insert( const KeyType &key );
-        exist( const KeyType &key );
+        Iterator insert( const KeyType &key );
+        Iterator find( const KeyType &key );
+
+        Iterator begin();
+        Iterator end();
     public:
+        /* Node define */
         template< typename KeyType, typename compareFunc >
         struct Node
         {
@@ -23,10 +28,12 @@ namespace ceto
             Node* forward[1];
         };
 
+        /* Iterator define */
         class Iterator
         {
         public:
             explicit Iterator( const SkipList *list );
+            explicit Iterator( Iterator itr );
             BOOLEAN valid();
             const KeyType& key();
             void next();
@@ -44,12 +51,36 @@ namespace ceto
         Comparator _comparator;
         MemMonitor _memMonitor;
         RandomGenerator _random;
-        //TODO: Add Atomic type _maxHeight
+        Barrier< INT32 > _maxHeight;
     private:
-
         INT32 getRandomHeight();
         Node* findLessThan( const KeyType &key );
         Node* findGreaterOrEqual( const KeyType &key );
     };
+
+    /* Iterator implement */
+    template< typename KeyType, class Comparator >
+        class SkipList::Iterator::Iterator( const SkipList *list ):
+        _list( list ), _node( NULL )
+    {
+    }
+
+    template< typename KeyType, class Comparator >
+        class SkipList::Iterator::Iterator( Iterator itr ):
+            _list( itr._list ), _node( itr._node )
+    {
+    }
+
+    template< typename KeyType, class Comparator >
+        BOOLEAN class SkipList::Iterator::valid()
+    {
+        return NULL == this->_node ;
+    }
+
+    template< typename KeyType, class Comparator >
+        const KeyType& class SkipList::Iterator::key()
+    {
+        return NULL == this->_node ;
+    }
 }
 #endif
