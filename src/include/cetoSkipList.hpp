@@ -1,5 +1,6 @@
 #ifndef CETO_SKIP_LIST_HPP
 #define CETO_SKIP_LIST_HPP
+#include "cetoTypes.hpp"
 #include "cetoBinData.hpp"
 #include "cetoMemMonitor.hpp"
 #include "cetoRandomGenerator.hpp"
@@ -7,20 +8,25 @@
 namespace ceto
 {
     // SkipList define
-    template< typename KeyType, class Comparator >
+    template< typename KeyType,
+              typename Comparator = std::less< KeyType >,
+              typename Allocator,
+              INT32 MAXHEIGHT = 12 >
     class SkipList
     {
     public:
+        /* forward declaration */
+        class Iterator;
+
+        /* function declaration */
         explicit SkipList();
         ~SkipList();
-
-        Iterator insert( const KeyType &key );
+        std::pair< Iterator, INT32 > insert( const KeyType &key );
         Iterator find( const KeyType &key );
-
         Iterator begin();
         Iterator end();
     public:
-        /* Node define */
+        /* Node declaration */
         template< typename KeyType, typename compareFunc >
         struct Node
         {
@@ -28,28 +34,30 @@ namespace ceto
             Node* forward[1];
         };
 
-        /* Iterator define */
+        /* Iterator declaration */
         class Iterator
         {
         public:
             explicit Iterator( const SkipList *list );
-            explicit Iterator( Iterator itr );
-            BOOLEAN valid();
+            explicit Iterator( const Iterator &itr );
+            BOOLEAN valid() const;
             const KeyType& key();
             void next();
             void prev();
             void seek( const KeyType &key );
             void seekToBegin();
             void seekToEnd();
+            Node& operator *() const;
+            Node* operator ->() const;
+            Iterator operator =() const;
         private:
             Node *_node;
             const SkipList *_list;
         };
     private:
-        const INT32 RANDOM_HIGHT_MAX = 12;
         Node* const _head;
         Comparator _comparator;
-        MemMonitor _memMonitor;
+        Allocator _memAlloctor;
         RandomGenerator _random;
         Barrier< INT32 > _maxHeight;
     private:
