@@ -4,14 +4,16 @@
 #include "cetoBinData.hpp"
 #include "cetoMemMonitor.hpp"
 #include "cetoRandomGenerator.hpp"
-#include "cetoBarrier.hpp"
+#include "cetoDebug.hpp"
+#include <atomic>
+
 namespace ceto
 {
     // SkipList define
     template< typename KeyType,
-              typename Comparator = std::less< KeyType >,
-              typename Allocator,
-              INT32 MAXHEIGHT = 12 >
+               typename Comparator = std::less< KeyType >,
+               typename Allocator,
+               INT32 MAXHEIGHT = 12 >
     class SkipList
     {
     public:
@@ -28,10 +30,16 @@ namespace ceto
     public:
         /* Node declaration */
         template< typename KeyType, typename compareFunc >
-        struct Node
+        class Node
         {
-            KeyType key;
-            Node* forward[1];
+		public:
+			explicit Node( const KeyType& key );
+	    	Node* next( INT32 position ) const;
+			void setNext( INT32 position, Node* next );
+			const KeyType& getKey() const;
+		private:
+            KeyType const key;
+            std::atomic< Node* > forward[1];
         };
 
         /* Iterator declaration */
@@ -59,17 +67,18 @@ namespace ceto
         Comparator _comparator;
         Allocator _memAlloctor;
         RandomGenerator _random;
-        Barrier< INT32 > _maxHeight;
+        std::atomic< INT32 > _maxHeight;
     private:
-        INT32 getRandomHeight();
-        Node* findLessThan( const KeyType &key );
-        Node* findGreaterOrEqual( const KeyType &key );
+        INT32 getRandomHeight() const;
+        Node* findLessThan( const KeyType &key ) const;
+        Node* findGreaterOrEqual( const KeyType &key ) const;
+		INT32 getMaxHeight() const;
     };
 
     /* Iterator implement */
     template< typename KeyType, class Comparator >
         class SkipList::Iterator::Iterator( const SkipList *list ):
-        _list( list ), _node( NULL )
+        _list( list ), _node( nullptr )
     {
     }
 
@@ -82,13 +91,36 @@ namespace ceto
     template< typename KeyType, class Comparator >
         BOOLEAN class SkipList::Iterator::valid()
     {
-        return NULL == this->_node ;
+        return nullptr == this->_node ;
     }
 
     template< typename KeyType, class Comparator >
         const KeyType& class SkipList::Iterator::key()
     {
-        return NULL == this->_node ;
+        return nullptr == this->_node ;
+    }
+
+	template< typename KeyType, class Comparator >
+        void class SkipList::Iterator::next()
+    {
+    	cetoAssert( this->valid(), "Node must be valid" );
+        this->_node = this->_node->next(0);
+    }
+
+	template< typename KeyType, class Comparator >
+        void class SkipList::Iterator::prev()
+    {
+        this->_node = this->_list->findLessThan( this->_node->getKey() );
+		if( this->_node == this->_list->_head )
+		{
+			this->_node = nullptr;
+		}
+    }
+
+	template< typename KeyType, class Comparator >
+        void class SkipList::Iterator::seek( const KeyType &key )
+    {
+        this->_node = this->_list->findGreaterOrEqual( this->_node->getKey() );
     }
 }
 #endif
