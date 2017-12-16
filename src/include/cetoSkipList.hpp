@@ -38,8 +38,8 @@ namespace ceto
 			void setNext( INT32 position, Node* next );
 			const KeyType& getKey() const;
 		private:
-            KeyType const key;
-            std::atomic< Node* > forward[1];
+            KeyType const _key;
+            std::atomic< Node* > _forward[1];
         };
 
         /* Iterator declaration */
@@ -57,7 +57,7 @@ namespace ceto
             void seekToEnd();
             Node& operator *() const;
             Node* operator ->() const;
-            Iterator operator =() const;
+            Iterator& operator =( const Iterator &itr ) const;
         private:
             Node *_node;
             const SkipList *_list;
@@ -75,40 +75,64 @@ namespace ceto
 		INT32 getMaxHeight() const;
     };
 
+    /* Node implement */
+    template< typename KeyType, class Comparator >
+        SkipList< KeyType, Comparator >::Node::Node( const KeyType& key )
+    {
+    }
+
+    template< typename KeyType, class Comparator >
+        SkipList< KeyType, Comparator >::Node*
+        SkipList< KeyType, Comparator >::Node::next( INT32 position ) const
+    {
+        //TODO:return this->_forward[ position ].
+    }
+
+    template< typename KeyType, class Comparator >
+        void SkipList< KeyType, Comparator >::Node::setNext( INT32 position, Node* next )
+    {
+    }
+
+    template< typename KeyType, class Comparator >
+    const KeyType& SkipList< KeyType, Comparator >::Node::getKey() const
+    {
+        return this->_key;
+    }
+
     /* Iterator implement */
     template< typename KeyType, class Comparator >
-        class SkipList::Iterator::Iterator( const SkipList *list ):
+        SkipList< KeyType, Comparator >::Iterator::Iterator( const SkipList *list ):
         _list( list ), _node( nullptr )
     {
     }
 
     template< typename KeyType, class Comparator >
-        class SkipList::Iterator::Iterator( Iterator itr ):
+        SkipList< KeyType, Comparator >::Iterator::Iterator( Iterator itr ):
             _list( itr._list ), _node( itr._node )
     {
     }
 
     template< typename KeyType, class Comparator >
-        BOOLEAN class SkipList::Iterator::valid()
+        BOOLEAN SkipList< KeyType, Comparator >::Iterator::valid() const
     {
         return nullptr == this->_node ;
     }
 
     template< typename KeyType, class Comparator >
-        const KeyType& class SkipList::Iterator::key()
+        const KeyType& SkipList< KeyType, Comparator >::Iterator::key()
     {
         return nullptr == this->_node ;
     }
 
 	template< typename KeyType, class Comparator >
-        void class SkipList::Iterator::next()
+        void SkipList< KeyType, Comparator >::Iterator::next()
     {
     	cetoAssert( this->valid(), "Node must be valid" );
         this->_node = this->_node->next(0);
     }
 
 	template< typename KeyType, class Comparator >
-        void class SkipList::Iterator::prev()
+        void SkipList< KeyType, Comparator >::Iterator::prev()
     {
         this->_node = this->_list->findLessThan( this->_node->getKey() );
 		if( this->_node == this->_list->_head )
@@ -118,9 +142,44 @@ namespace ceto
     }
 
 	template< typename KeyType, class Comparator >
-        void class SkipList::Iterator::seek( const KeyType &key )
+        void SkipList< KeyType, Comparator >::Iterator::seek( const KeyType &key )
     {
         this->_node = this->_list->findGreaterOrEqual( this->_node->getKey() );
+    }
+
+    template< typename KeyType, class Comparator >
+        void SkipList< KeyType, Comparator >::Iterator::seekToBegin()
+    {
+        this->_node = this->_list->_head->next( 0 );
+    }
+
+    template< typename KeyType, class Comparator >
+        void SkipList< KeyType, Comparator >::Iterator::seekToEnd()
+    {
+        this->_node = this->_list.end()._node;
+    }
+
+    template< typename KeyType, class Comparator >
+        SkipList< KeyType, Comparator >::Node&
+        SkipList< KeyType, Comparator >::Iterator::operator *() const
+    {
+        return *(this->_node ) ;
+    }
+
+    template< typename KeyType, class Comparator >
+        SkipList< KeyType, Comparator >::Node*
+        SkipList< KeyType, Comparator >::Iterator::operator ->() const
+    {
+        return this->_node;
+    }
+
+    template< typename KeyType, class Comparator >
+        SkipList< KeyType, Comparator >::Iterator&
+        SkipList< KeyType, Comparator >::Iterator::operator =( const Iterator &itr ) const
+    {
+        this->_node = itr._node;
+        this->_list = itr._list;
+        return *this;
     }
 }
 #endif
