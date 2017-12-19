@@ -37,6 +37,8 @@ namespace ceto
 	    	Node* next( INT32 position ) const;
 			void setNext( INT32 position, Node* next );
 			const KeyType& getKey() const;
+            Node* nextWithNoBarrier() const;
+            void setNextWithNoBarrier();
 		private:
             KeyType const _key;
             std::atomic< Node* > _forward[1];
@@ -85,12 +87,27 @@ namespace ceto
         SkipList< KeyType, Comparator >::Node*
         SkipList< KeyType, Comparator >::Node::next( INT32 position ) const
     {
-        //TODO:return this->_forward[ position ].
+        return this->_forward[ position ].load( std::memory_order_acquire );
     }
 
     template< typename KeyType, class Comparator >
         void SkipList< KeyType, Comparator >::Node::setNext( INT32 position, Node* next )
     {
+        this->_forward[ position ].store( next, std::memory_order_release );
+    }
+
+
+    template< typename KeyType, class Comparator >
+       SkipList< KeyType, Comparator >::Node*
+       SkipList< KeyType, Comparator >::Node::nextWithNoBarrier( INT32 position ) const
+    {
+        return this->_forward[ position ].load( std::memory_order_relaxed );
+    }
+
+    template< typename KeyType, class Comparator >
+        void SkipList< KeyType, Comparator >::Node::setNextWithNoBarrier( INT32 position, Node* next )
+    {
+        this->_forward[ position ].store( next, std::memory_order_relaxed );
     }
 
     template< typename KeyType, class Comparator >
