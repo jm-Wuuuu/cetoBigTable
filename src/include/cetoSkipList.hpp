@@ -21,7 +21,7 @@ namespace ceto
         class Iterator;
 
         /* function declaration */
-        explicit SkipList();
+        explicit SkipList( const Allocator &allocator );
         ~SkipList();
         std::pair< Iterator, INT32 > insert( const KeyType &key );
         Iterator find( const KeyType &key );
@@ -32,14 +32,14 @@ namespace ceto
         template< typename KeyType, typename compareFunc >
         class Node
         {
-		public:
-			explicit Node( const KeyType& key );
-	    	Node* next( INT32 position ) const;
-			void setNext( INT32 position, Node* next );
-			const KeyType& getKey() const;
+        public:
+            explicit Node( const KeyType& key );
+            Node* next( INT32 position ) const;
+            void setNext( INT32 position, Node* next );
+            const KeyType& getKey() const;
             Node* nextWithNoBarrier() const;
             void setNextWithNoBarrier();
-		private:
+        private:
             KeyType const _key;
             std::atomic< Node* > _forward[1];
         };
@@ -74,8 +74,43 @@ namespace ceto
         INT32 getRandomHeight() const;
         Node* findLessThan( const KeyType &key ) const;
         Node* findGreaterOrEqual( const KeyType &key ) const;
-		INT32 getMaxHeight() const;
+        INT32 getMaxHeight() const;
     };
+
+    /* Skiplist implement */
+    template< typename KeyType, class Comparator >
+        SkipList< KeyType, Comparator >::SkipList( const Allocator &allocator )
+    {
+    }
+
+    template< typename KeyType, class Comparator >
+        SkipList< KeyType, Comparator >::~SkipList()
+    {
+    }
+
+    template< typename KeyType, class Comparator >
+        std::pair< SkipList< KeyType, Comparator >::Iterator, INT32 >
+        SkipList< KeyType, Comparator >::insert( const KeyType &key )
+    {
+    }
+
+    template< typename KeyType, class Comparator >
+        SkipList< KeyType, Comparator >::Iterator
+        SkipList< KeyType, Comparator >::find( const KeyType &key )
+    {
+    }
+
+    template< typename KeyType, class Comparator >
+        SkipList< KeyType, Comparator >::Iterator
+        SkipList< KeyType, Comparator >::begin()
+    {
+    }
+
+    template< typename KeyType, class Comparator >
+        SkipList< KeyType, Comparator >::Iterator
+        SkipList< KeyType, Comparator >::end()
+    {
+    }
 
     /* Node implement */
     template< typename KeyType, class Comparator >
@@ -98,20 +133,21 @@ namespace ceto
 
 
     template< typename KeyType, class Comparator >
-       SkipList< KeyType, Comparator >::Node*
-       SkipList< KeyType, Comparator >::Node::nextWithNoBarrier( INT32 position ) const
+        SkipList< KeyType, Comparator >::Node*
+        SkipList< KeyType, Comparator >::Node::nextWithNoBarrier( INT32 position ) const
     {
         return this->_forward[ position ].load( std::memory_order_relaxed );
     }
 
     template< typename KeyType, class Comparator >
-        void SkipList< KeyType, Comparator >::Node::setNextWithNoBarrier( INT32 position, Node* next )
+        void SkipList< KeyType, Comparator >::Node::setNextWithNoBarrier
+        ( INT32 position, Node* next )
     {
         this->_forward[ position ].store( next, std::memory_order_relaxed );
     }
 
     template< typename KeyType, class Comparator >
-    const KeyType& SkipList< KeyType, Comparator >::Node::getKey() const
+        const KeyType& SkipList< KeyType, Comparator >::Node::getKey() const
     {
         return this->_key;
     }
@@ -125,7 +161,7 @@ namespace ceto
 
     template< typename KeyType, class Comparator >
         SkipList< KeyType, Comparator >::Iterator::Iterator( Iterator itr ):
-            _list( itr._list ), _node( itr._node )
+        _list( itr._list ), _node( itr._node )
     {
     }
 
@@ -141,24 +177,24 @@ namespace ceto
         return nullptr == this->_node ;
     }
 
-	template< typename KeyType, class Comparator >
+    template< typename KeyType, class Comparator >
         void SkipList< KeyType, Comparator >::Iterator::next()
     {
-    	cetoAssert( this->valid(), "Node must be valid" );
+        cetoAssert( this->valid(), "Node must be valid" );
         this->_node = this->_node->next(0);
     }
 
-	template< typename KeyType, class Comparator >
+    template< typename KeyType, class Comparator >
         void SkipList< KeyType, Comparator >::Iterator::prev()
     {
         this->_node = this->_list->findLessThan( this->_node->getKey() );
-		if( this->_node == this->_list->_head )
-		{
-			this->_node = nullptr;
-		}
+        if( this->_node == this->_list->_head )
+        {
+            this->_node = nullptr;
+        }
     }
 
-	template< typename KeyType, class Comparator >
+    template< typename KeyType, class Comparator >
         void SkipList< KeyType, Comparator >::Iterator::seek( const KeyType &key )
     {
         this->_node = this->_list->findGreaterOrEqual( this->_node->getKey() );
@@ -192,7 +228,8 @@ namespace ceto
 
     template< typename KeyType, class Comparator >
         SkipList< KeyType, Comparator >::Iterator&
-        SkipList< KeyType, Comparator >::Iterator::operator =( const Iterator &itr ) const
+        SkipList< KeyType, Comparator >::Iterator::operator =
+        ( const Iterator &itr ) const
     {
         this->_node = itr._node;
         this->_list = itr._list;
