@@ -5,11 +5,11 @@
 
 namespace ceto
 {
-	struct BinData
-	{
-		CHAR* buf;
+    struct BinData
+    {
+        CHAR* buf;
         UINT32 len;
-	};
+    };
 
     INT32 compare( const BinData& lhs, const BinData& rhs );
 
