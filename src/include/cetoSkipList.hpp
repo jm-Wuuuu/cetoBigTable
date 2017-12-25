@@ -21,7 +21,7 @@ namespace ceto
         class Iterator;
 
         /* function declaration */
-        explicit SkipList( const Allocator &allocator );
+        explicit SkipList( Allocator *allocator );
         ~SkipList();
         std::pair< Iterator, INT32 > insert( const KeyType &key );
         Iterator find( const KeyType &key );
@@ -71,16 +71,19 @@ namespace ceto
         RandomGenerator _random;
         std::atomic< INT32 > _maxHeight;
     private:
-        INT32 getRandomHeight() const;
-        Node* findLessThan( const KeyType &key ) const;
-        Node* findGreaterOrEqual( const KeyType &key ) const;
-        INT32 getMaxHeight() const;
+        INT32 _getRandomHeight() const;
+        Node* _findLessThan( const KeyType &key ) const;
+        Node* _findGreaterOrEqual( const KeyType &key ) const;
+        INT32 _getMaxHeight() const;
+        Node* newNode( const KeyType &key, INT32 height );
     };
 
     /* Skiplist implement */
     template< typename KeyType, class Comparator >
-        SkipList< KeyType, Comparator >::SkipList( const Allocator &allocator )
+        SkipList< KeyType, Comparator >::SkipList( Allocator *allocator ):
+        _memAlloctor( allocator ), _maxHeight( 1 ), _head( std::nullptr )
     {
+        Node *node = newNode();
     }
 
     template< typename KeyType, class Comparator >
@@ -114,7 +117,7 @@ namespace ceto
 
     /* Node implement */
     template< typename KeyType, class Comparator >
-        SkipList< KeyType, Comparator >::Node::Node( const KeyType& key )
+        SkipList< KeyType, Comparator >::Node::Node( const KeyType& key ): _key( key )
     {
     }
 
