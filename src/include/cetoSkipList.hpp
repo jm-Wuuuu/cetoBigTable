@@ -75,15 +75,18 @@ namespace ceto
         Node* _findLessThan( const KeyType &key ) const;
         Node* _findGreaterOrEqual( const KeyType &key ) const;
         INT32 _getMaxHeight() const;
-        Node* newNode( const KeyType &key, INT32 height );
+        Node* _newNode( const KeyType &key, INT32 height );
     };
 
     /* Skiplist implement */
     template< typename KeyType, class Comparator >
         SkipList< KeyType, Comparator >::SkipList( Allocator *allocator ):
-        _memAlloctor( allocator ), _maxHeight( 1 ), _head( std::nullptr )
+        _memAlloctor( allocator ), _maxHeight( 1 ), _head( _newNode( 0, MAXHEIGHT ) )
     {
-        Node *node = newNode();
+        for( UINT32 index = 0; index < MAXHEIGHT; index++ )
+        {
+            _head->setNext( index, nullptr );
+        }
     }
 
     template< typename KeyType, class Comparator >
@@ -112,6 +115,36 @@ namespace ceto
     template< typename KeyType, class Comparator >
         SkipList< KeyType, Comparator >::Iterator
         SkipList< KeyType, Comparator >::end()
+    {
+    }
+
+    template< typename KeyType, class Comparator >
+        INT32  SkipList< KeyType, Comparator >::_getRandomHeight() const
+    {
+    }
+
+    template< typename KeyType, class Comparator >
+        SkipList< KeyType, Comparator >::Node*
+        SkipList< KeyType, Comparator >::_findLessThan( const KeyType &key ) const
+    {
+    }
+
+    template< typename KeyType, class Comparator >
+        SkipList< KeyType, Comparator >::Node*
+        SkipList< KeyType, Comparator >::
+        _findGreaterOrEqual( const KeyType &key ) const
+    {
+    }
+
+    template< typename KeyType, class Comparator >
+        INT32 SkipList< KeyType, Comparator >::_getMaxHeight() const
+    {
+    }
+
+    template< typename KeyType, class Comparator >
+        SkipList< KeyType, Comparator >::Node*
+        SkipList< KeyType, Comparator >::_newNode( const KeyType &key,
+                                                   INT32 height )
     {
     }
 
