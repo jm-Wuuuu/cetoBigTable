@@ -23,7 +23,7 @@ namespace ceto
         /* function declaration */
         explicit SkipList( Allocator *allocator );
         ~SkipList();
-        std::pair< Iterator, INT32 > insert( const KeyType &key );
+        std::pair< Iterator, Status > insert( const KeyType &key );
         Iterator find( const KeyType &key );
         Iterator begin();
         Iterator end();
@@ -85,7 +85,7 @@ namespace ceto
     {
         for( UINT32 index = 0; index < MAXHEIGHT; index++ )
         {
-            _head->setNext( index, nullptr );
+            _head->setNext( index, std::nullptr );
         }
     }
 
@@ -95,15 +95,17 @@ namespace ceto
     }
 
     template< typename KeyType, class Comparator >
-        std::pair< SkipList< KeyType, Comparator >::Iterator, INT32 >
+        std::pair< SkipList< KeyType, Comparator >::Iterator, Status >
         SkipList< KeyType, Comparator >::insert( const KeyType &key )
     {
     }
 
     template< typename KeyType, class Comparator >
-        SkipList< KeyType, Comparator >::Iterator
+        SkipList< KeyType, Comparator >::Node*
         SkipList< KeyType, Comparator >::find( const KeyType &key )
     {
+        Iterator itr = _findGreaterOrEqual( key );
+        return itr;
     }
 
     template< typename KeyType, class Comparator >
@@ -116,6 +118,7 @@ namespace ceto
         SkipList< KeyType, Comparator >::Iterator
         SkipList< KeyType, Comparator >::end()
     {
+        SkipList< KeyType, Comparator >::Iterator itr =
     }
 
     template< typename KeyType, class Comparator >
