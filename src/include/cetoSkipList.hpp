@@ -60,12 +60,14 @@ namespace ceto
             Node& operator *() const;
             Node* operator ->() const;
             Iterator& operator =( const Iterator &itr ) const;
+            BOOLEAN operator ==( const Iterator &itr ) const;
         private:
             Node *_node;
             const SkipList *_list;
         };
     private:
         Node* const _head;
+        Node* const _end;
         Comparator _comparator;
         Allocator _memAlloctor;
         RandomGenerator _random;
@@ -81,11 +83,12 @@ namespace ceto
     /* Skiplist implement */
     template< typename KeyType, class Comparator >
         SkipList< KeyType, Comparator >::SkipList( Allocator *allocator ):
-        _memAlloctor( allocator ), _maxHeight( 1 ), _head( _newNode( 0, MAXHEIGHT ) )
+        _memAlloctor( allocator ), _maxHeight( 1 ),
+        _head( _newNode( 0, MAXHEIGHT ) ), _end( _newNode( 0, 1 ) )
     {
         for( UINT32 index = 0; index < MAXHEIGHT; index++ )
         {
-            _head->setNext( index, std::nullptr );
+            _head->setNext( index, _end );
         }
     }
 
@@ -98,10 +101,18 @@ namespace ceto
         std::pair< SkipList< KeyType, Comparator >::Iterator, Status >
         SkipList< KeyType, Comparator >::insert( const KeyType &key )
     {
+        INT32 height = 1;
+        Node *prevNode = std::nullptr;
+        while( height < MAXHEIGHT && 0 == _random.getNumber() % 4 )
+        {
+            height++;
+        }
+        Node *newNode = _newNode( key, height );
+        prevNode = _findGreaterOrEqual( key );
     }
 
     template< typename KeyType, class Comparator >
-        SkipList< KeyType, Comparator >::Node*
+        SkipList< KeyType, Comparator >::Iterator
         SkipList< KeyType, Comparator >::find( const KeyType &key )
     {
         Iterator itr = _findGreaterOrEqual( key );
