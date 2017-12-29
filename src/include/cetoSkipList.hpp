@@ -75,9 +75,10 @@ namespace ceto
     private:
         INT32 _getRandomHeight() const;
         Node* _findLessThan( const KeyType &key ) const;
-        Node* _findGreaterOrEqual( const KeyType &key ) const;
+        Node* _findGreaterOrEqual( const KeyType &key, Node** prev ) const;
         INT32 _getMaxHeight() const;
         Node* _newNode( const KeyType &key, INT32 height );
+        BOOLEAN _keyIsAfterNode( const KeyType &key, Node* node ) const;
     };
 
     /* Skiplist implement */
@@ -146,8 +147,13 @@ namespace ceto
     template< typename KeyType, class Comparator >
         SkipList< KeyType, Comparator >::Node*
         SkipList< KeyType, Comparator >::
-        _findGreaterOrEqual( const KeyType &key ) const
+        _findGreaterOrEqual( const KeyType &key, Node** prev ) const
     {
+        INT32 level = _getMaxHeight() - 1;
+        while( true )
+        {
+
+        }
     }
 
     template< typename KeyType, class Comparator >
@@ -162,6 +168,13 @@ namespace ceto
     {
     }
 
+    template< typename KeyType, class Comparator >
+        BOOLEAN SkipList< KeyType, Comparator >::_keyIsAfterNode
+        ( const KeyType &key, Node* node ) const
+    {
+        return ( node != std::nullptr &&
+                  ( _comparator( node->getKey(), key ) < 0 ) )
+    }
     /* Node implement */
     template< typename KeyType, class Comparator >
         SkipList< KeyType, Comparator >::Node::Node( const KeyType& key ): _key( key )
