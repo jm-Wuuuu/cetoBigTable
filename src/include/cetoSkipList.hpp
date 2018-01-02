@@ -6,7 +6,7 @@
 #include "cetoRandomGenerator.hpp"
 #include "cetoDebug.hpp"
 #include <atomic>
-
+using std::atomic;
 namespace ceto
 {
     // SkipList define
@@ -50,6 +50,7 @@ namespace ceto
         public:
             explicit Iterator( const SkipList *list );
             explicit Iterator( const Iterator &itr );
+            explicit Iterator( const SkipList *list, Node* node );
             BOOLEAN valid() const;
             const KeyType& key();
             void next();
@@ -79,6 +80,11 @@ namespace ceto
         INT32 _getMaxHeight() const;
         Node* _newNode( const KeyType &key, INT32 height );
         BOOLEAN _keyIsAfterNode( const KeyType &key, Node* node ) const;
+
+        inline BOOLEAN _equal(  const KeyType &lhs,  const KeyType &rhs )
+        {
+            return ( _comparator( lhs, rhs ) == 0 );
+        }
     };
 
     /* Skiplist implement */
@@ -116,8 +122,9 @@ namespace ceto
         SkipList< KeyType, Comparator >::Iterator
         SkipList< KeyType, Comparator >::find( const KeyType &key )
     {
-        Iterator itr = _findGreaterOrEqual( key );
-        return itr;
+        Node* prev[ MAXHEIGHT ];
+        Node* node = _findGreaterOrEqual( key, prev );
+        return Iterator( this, node );
     }
 
     template< typename KeyType, class Comparator >
@@ -149,16 +156,41 @@ namespace ceto
         SkipList< KeyType, Comparator >::
         _findGreaterOrEqual( const KeyType &key, Node** prev ) const
     {
+        Node *node = _head ;
         INT32 level = _getMaxHeight() - 1;
         while( true )
         {
+            Node *next = node->next( level );
+            if( _keyIsAfterNode( key, next ) )
+            {
+                // continue to search node
+                node = next;
+            }
+            else
+            {
+                if( prev != std::nullptr )
+                {
+                    prev[level] = node;
+                }
 
+                // the lowest level, need to return next node
+                if( 0 == level )
+                {
+                    return next;
+                }
+                else
+                {
+                    // current level no exist node, need to search lower level
+                    level--;
+                }
+            }
         }
     }
 
     template< typename KeyType, class Comparator >
         INT32 SkipList< KeyType, Comparator >::_getMaxHeight() const
     {
+        return _maxHeight.load( std::memory_order_relaxed );
     }
 
     template< typename KeyType, class Comparator >
@@ -172,7 +204,8 @@ namespace ceto
         BOOLEAN SkipList< KeyType, Comparator >::_keyIsAfterNode
         ( const KeyType &key, Node* node ) const
     {
-        return ( node != std::nullptr &&
+        cetoAssert( node != std::nullptr, "node must not be nullptr" );
+        return ( node != _end &&
                   ( _comparator( node->getKey(), key ) < 0 ) )
     }
     /* Node implement */
@@ -225,6 +258,13 @@ namespace ceto
     template< typename KeyType, class Comparator >
         SkipList< KeyType, Comparator >::Iterator::Iterator( Iterator itr ):
         _list( itr._list ), _node( itr._node )
+    {
+    }
+
+    template< typename KeyType, class Comparator >
+        SkipList< KeyType, Comparator >::Iterator::
+        Iterator( const SkipList *list, Node* node ):
+            _list( list ), _node( node )
     {
     }
 
