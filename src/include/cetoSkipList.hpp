@@ -70,7 +70,7 @@ namespace ceto
         Node* const _head;
         Node* const _end;
         Comparator _comparator;
-        Allocator _memAlloctor;
+        Allocator *_memAlloctor;
         RandomGenerator _random;
         std::atomic< INT32 > _maxHeight;
     private:
@@ -131,13 +131,16 @@ namespace ceto
         SkipList< KeyType, Comparator >::Iterator
         SkipList< KeyType, Comparator >::begin()
     {
+        SkipList< KeyType, Comparator >::Iterator itr( this, this->_head );
+        return itr;
     }
 
     template< typename KeyType, class Comparator >
         SkipList< KeyType, Comparator >::Iterator
         SkipList< KeyType, Comparator >::end()
     {
-        SkipList< KeyType, Comparator >::Iterator itr =
+        SkipList< KeyType, Comparator >::Iterator itr( this, this->_end );
+        return itr;
     }
 
     template< typename KeyType, class Comparator >
@@ -149,6 +152,29 @@ namespace ceto
         SkipList< KeyType, Comparator >::Node*
         SkipList< KeyType, Comparator >::_findLessThan( const KeyType &key ) const
     {
+        Node *node = _head ;
+        INT32 level = _getMaxHeight() - 1;
+        while( true )
+        {
+            cetoAssert( node == _head || _comparator( node->key, key ) < 0,
+                         "node must be head node or less than key" );
+            Node *next = node->next( level );
+            if( next == _end || _comparator( next->key, key ) >= 0 )
+            {
+                if( 0 == level )
+                {
+                    return node;
+                }
+                else
+                {
+                    level--;
+                }
+            }
+            else
+            {
+                node = next;
+            }
+        }
     }
 
     template< typename KeyType, class Comparator >
@@ -196,8 +222,11 @@ namespace ceto
     template< typename KeyType, class Comparator >
         SkipList< KeyType, Comparator >::Node*
         SkipList< KeyType, Comparator >::_newNode( const KeyType &key,
-                                                   INT32 height )
+                                                            INT32 height )
     {
+        char *mem = _memAlloctor->alloc( sizeof(Node) +
+                    sizeof(std::atomic< Node* >) * (height - 1) );
+        return new (mem) Node(key);
     }
 
     template< typename KeyType, class Comparator >
@@ -337,6 +366,13 @@ namespace ceto
         this->_node = itr._node;
         this->_list = itr._list;
         return *this;
+    }
+
+    template< typename KeyType, class Comparator >
+        BOOLEAN SkipList< KeyType, Comparator >::Iterator::
+        operator ==( const Iterator &itr ) const
+    {
+        return this->_node == itr._node && this->_list == itr._list;
     }
 }
 #endif
