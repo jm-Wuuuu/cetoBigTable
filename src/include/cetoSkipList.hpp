@@ -5,6 +5,7 @@
 #include "cetoMemMonitor.hpp"
 #include "cetoRandomGenerator.hpp"
 #include "cetoDebug.hpp"
+#include "cetoError.hpp"
 #include <atomic>
 using std::atomic;
 namespace ceto
@@ -23,7 +24,7 @@ namespace ceto
         /* function declaration */
         explicit SkipList( Allocator *allocator );
         ~SkipList();
-        std::pair< Iterator, Status > insert( const KeyType &key );
+        STATUS insert( const KeyType &key );
         Iterator find( const KeyType &key );
         Iterator begin();
         Iterator end();
@@ -91,7 +92,7 @@ namespace ceto
     template< typename KeyType, class Comparator >
         SkipList< KeyType, Comparator >::SkipList( Allocator *allocator ):
         _memAlloctor( allocator ), _maxHeight( 1 ),
-        _head( _newNode( 0, MAXHEIGHT ) ), _end( _newNode( 0, 1 ) )
+        _head( _newNode( 0, MAXHEIGHT ) ), _end( std::nullptr )
     {
         for( UINT32 index = 0; index < MAXHEIGHT; index++ )
         {
@@ -105,17 +106,35 @@ namespace ceto
     }
 
     template< typename KeyType, class Comparator >
-        std::pair< SkipList< KeyType, Comparator >::Iterator, Status >
-        SkipList< KeyType, Comparator >::insert( const KeyType &key )
+        STATUS SkipList< KeyType, Comparator >::insert( const KeyType &key )
     {
-        INT32 height = 1;
-        Node *prevNode = std::nullptr;
-        while( height < MAXHEIGHT && 0 == _random.getNumber() % 4 )
+        INT32 rc = STATUS_OK;
+        INT32 height = _getRandomHeight();
+        Node *prev[MAXHEIGHT];
+        Node *next = _findGreaterOrEqual( key, &prev );
+        if( next != _end && _equal( next->getKey(), key ) )
         {
-            height++;
+            rc = STATUS_EXIST_KEY;
+            goto error;
+        }
+        if( height > _getMaxHeight() )
+        {
+            for( UINT32 index = _getMaxHeight(); index < height; index++ )
+            {
+                prev[index] = _head;
+            }
+            _maxHeight.store( std::memory_order_relaxed, height );
         }
         Node *newNode = _newNode( key, height );
-        prevNode = _findGreaterOrEqual( key );
+        for( UINT32 index = 0; index < height; index++ )
+        {
+            newNode->setNextWithNoBarrier( index, prev[index]->nextWithNoBarrier(index));
+            prev[index]->setNext( index, newNode );
+        }
+    done:
+        return rc;
+    error:
+        goto done;
     }
 
     template< typename KeyType, class Comparator >
@@ -146,6 +165,16 @@ namespace ceto
     template< typename KeyType, class Comparator >
         INT32  SkipList< KeyType, Comparator >::_getRandomHeight() const
     {
+        const INT32 KBRANCHING = 4;
+        INT32 height = 1;
+        Node *prevNode = std::nullptr;
+        while( height < MAXHEIGHT && 0 == _random() % KBRANCHING )
+        {
+            height++;
+        }
+        cetoAssert( height > 0 && height < MAXHEIGHT,
+                    "height must greater than 0 and less than MAXHEIGHT" );
+        return height;
     }
 
     template< typename KeyType, class Comparator >
@@ -300,13 +329,13 @@ namespace ceto
     template< typename KeyType, class Comparator >
         BOOLEAN SkipList< KeyType, Comparator >::Iterator::valid() const
     {
-        return nullptr == this->_node ;
+        return std::nullptr == this->_node ;
     }
 
     template< typename KeyType, class Comparator >
         const KeyType& SkipList< KeyType, Comparator >::Iterator::key()
     {
-        return nullptr == this->_node ;
+        return this->_node->getKey();
     }
 
     template< typename KeyType, class Comparator >
@@ -322,7 +351,7 @@ namespace ceto
         this->_node = this->_list->findLessThan( this->_node->getKey() );
         if( this->_node == this->_list->_head )
         {
-            this->_node = nullptr;
+            this->_node = std::nullptr;
         }
     }
 
