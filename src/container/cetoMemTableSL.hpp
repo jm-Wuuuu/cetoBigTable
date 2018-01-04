@@ -3,42 +3,28 @@
 #include "cetoSkipList.hpp"
 namespace ceto
 {
-    struct SLKey
+    // MemTableSLKey define
+    struct MemTableSLKey
     {
         BinData key;
         BinData value;
     };
 
-    struct SLKeyComparator
+    // MemTableSLKeyComparator define
+    struct MemTableSLKeyComparator
     {
-        INT32 operator ()( const SLKey &lhs, const SLKey &rhs )
-        {
-            INT32 ret = 0;
-            INT32 length = -1 ;
-            const CHAR* lBuffer = lhs.key.buf;
-            const CHAR* rBuffer = rhs.key.buf;
-            ret = lhs.key.len - rhs.key.len;
-            length = lhs.key.len < rhs.key.len? lhs.key.len: rhs.key.len;
-
-            for( UINT32 index = 0; index < length; index++ )
-            {
-                INT32 tmp = lBuffer[index] - rBuffer[index];
-                if( tmp )
-                {
-                    return tmp
-                }
-            }
-            return ret;
-        }
+        INT32 operator ()( const SLKey &lhs, const SLKey &rhs );
     };
+
+    // CetoMemTableSL define
     class CetoMemTableSL: CetoMemTable
     {
     public:
-        virtual Status init();
-        virtual Status insert( const BinData& key, const BinData& value );
-        virtual Status query( const BinData& key, BinData& value );
+        virtual STATUS init();
+        virtual STATUS insert( const BinData& key, const BinData& value );
+        virtual STATUS query( const BinData& key, BinData& value );
     private:
-        SkipList< SLKey,SLKeyComparator > _list;
+        SkipList< MemTableSLKey, MemTableSLKeyComparator > _list;
     };
 }
 #endif
