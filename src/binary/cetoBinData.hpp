@@ -7,13 +7,10 @@ namespace ceto
 {
     struct BinData
     {
-        static newBinData( UINT32 len, CHAR*buf );
         UINT32 len;
-        CHAR* buf;
+        CHAR buf[1];
+        static INT32 compare( const BinData& lhs, const BinData& rhs ) ;
     };
-
-
-    INT32 compare( const BinData& lhs, const BinData& rhs );
 
 }
 #endif

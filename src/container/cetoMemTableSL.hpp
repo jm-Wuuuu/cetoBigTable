@@ -13,7 +13,7 @@ namespace ceto
     // MemTableSLKeyComparator define
     struct MemTableSLKeyComparator
     {
-        INT32 operator ()( const SLKey &lhs, const SLKey &rhs );
+        INT32 operator ()( const MemTableSLKey &lhs, const MemTableSLKey &rhs );
     };
 
     // CetoMemTableSL define
