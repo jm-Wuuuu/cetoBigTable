@@ -1,21 +1,22 @@
 #ifndef CETO_SKIP_LIST_HPP
 #define CETO_SKIP_LIST_HPP
-#include "cetoTypes.hpp"
+#include "cetoType.hpp"
 #include "cetoBinData.hpp"
-#include "cetoMemMonitor.hpp"
+#include "cetoMemAllocator.hpp"
 #include "cetoRandomGenerator.hpp"
 #include "cetoDebug.hpp"
 #include "cetoError.hpp"
+#include "ceto.hpp"
 #include <atomic>
 using std::atomic;
 namespace ceto
 {
     // SkipList define
     template< typename KeyType,
-               typename Comparator = std::less< KeyType >,
-               typename Allocator,
-               INT32 MAXHEIGHT = 12 >
-    class SkipList
+              typename Allocator,
+              typename Comparator = std::less< KeyType >,
+              INT32 MAXHEIGHT = 12 >
+    class SkipList: public CetoObject
     {
     public:
         /* forward declaration */

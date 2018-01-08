@@ -1,15 +1,10 @@
 #ifndef CETO_MEM_MONITOR_HPP
 #define CETO_MEM_MONITOR_HPP
-#include <vector>
+#include "ceto.hpp"
 namespace ceto
 {
-    inline MemAllocator& getMemAllocator()
-    {
-        static MemAllocator memAllocator;
-        return memAllocator;
-    }
 
-    class MemAllocator
+    class MemAllocator: public CetoObject
     {
     public:
         explicit MemAllocator(): _allocSize( 0 ){ }
@@ -19,7 +14,12 @@ namespace ceto
         void release( void* buffer );
     private:
         INT32 _allocSize;
-
     };
+
+    inline MemAllocator& getMemAllocator()
+    {
+        static MemAllocator memAllocator;
+        return memAllocator;
+    }
 }
 #endif

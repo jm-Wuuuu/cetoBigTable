@@ -2,12 +2,12 @@
 #define CETO_BINDATA_HPP
 
 #include "cetoType.hpp"
-
+#include "cetoError.hpp"
 namespace ceto
 {
     struct BinData
     {
-        static newBinData( UINT32 len, CHAR*buf );
+        static STATUS newBinData( UINT32 len, CHAR*buf );
         UINT32 len;
         CHAR* buf;
     };

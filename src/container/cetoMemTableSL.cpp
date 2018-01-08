@@ -24,6 +24,10 @@ namespace ceto
     }
 
     // CetoMemTableSL implement
+    CetoMemTableSL::CetoMemTableSL():_list( &getMemAllocator() )
+    {
+    }
+
     STATUS CetoMemTableSL::init()
     {
         return STATUS_OK;

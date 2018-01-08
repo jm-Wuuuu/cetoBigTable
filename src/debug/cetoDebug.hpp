@@ -4,7 +4,7 @@
 namespace ceto
 {
 
-    static _cetoPanic()
+    static void _cetoPanic()
     {
         INT32 *ptr = NULL;
         *ptr = 10;
