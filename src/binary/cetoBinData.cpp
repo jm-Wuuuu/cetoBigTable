@@ -2,12 +2,12 @@ include "cetoBinData.hpp"
 
 namespace ceto
 {
-    INT32 compare( const BinData& lhs, const BinData& rhs )
+    INT32 BinData::compare( const BinData& lhs, const BinData& rhs )
     {
         UINT32 leftLen = lhs.len;
         UINT32 rightLen = rhs.len;
-        const CHAR* leftBuf = lhs.buf;
-        const CHAR* rightBuf = rhs.buf;
+        const CHAR* leftBuf = &lhs.buf;
+        const CHAR* rightBuf = &rhs.buf;
         UINT32 minLen = lhs.len > rhs.len ? lhs.len: rhs.len;
         INT16 result = 0;
 
