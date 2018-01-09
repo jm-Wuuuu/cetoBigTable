@@ -2,6 +2,7 @@
 #define CETO_MEM_TABLE_SL_HPP
 #include "cetoSkipList.hpp"
 #include "cetoMemAllocator.hpp"
+#include "cetoMemTable.hpp"
 namespace ceto
 {
     // MemTableSLKey define
@@ -18,7 +19,7 @@ namespace ceto
     };
 
     // CetoMemTableSL define
-    class CetoMemTableSL: CetoMemTable
+    class CetoMemTableSL: public CetoMemTable
     {
     public:
         CetoMemTableSL();

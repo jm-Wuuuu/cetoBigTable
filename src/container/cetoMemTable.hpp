@@ -2,14 +2,15 @@
 #define CETO_MEM_TABLE_HPP
 #include "cetoError.hpp"
 #include "cetoBinData.hpp"
+#include "ceto.hpp"
 namespace ceto
 {
-    class CetoMemTable
+    class CetoMemTable: public CetoObject
     {
     public:
-        virtual Status init() = 0;
-        virtual Status insert( const BinData& key, const BinData& value ) = 0;
-        virtual Status query( const BinData& key, BinData& value ) = 0;
+        virtual STATUS init() = 0;
+        virtual STATUS insert( const BinData& key, const BinData& value ) = 0;
+        virtual STATUS query( const BinData& key, BinData& value ) = 0;
     };
 }
 #endif

@@ -10,12 +10,12 @@ namespace ceto
         *ptr = 10;
     }
 #if defined(CETO_CLIENT)
-    inline void cetoAssert( cond, str )
+    inline void cetoAssert( BOOLEAN cond, const CHAR* str )
     {
         assert( cond );
     }
 #elif defined(CETO_SERVER)
-    inline void cetoAssert( cond, str )
+    inline void cetoAssert( BOOLEAN cond, const CHAR* str )
     {
         if( !cond )
         {

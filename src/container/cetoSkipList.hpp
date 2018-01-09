@@ -31,7 +31,6 @@ namespace ceto
         Iterator end();
     public:
         /* Node declaration */
-        template< typename KeyType, typename compareFunc >
         class Node
         {
         public:
@@ -39,8 +38,8 @@ namespace ceto
             Node* next( INT32 position ) const;
             void setNext( INT32 position, Node* next );
             const KeyType& getKey() const;
-            Node* nextWithNoBarrier() const;
-            void setNextWithNoBarrier();
+            Node* nextWithNoBarrier( INT32 position ) const;
+            void setNextWithNoBarrier( INT32 position, Node* next );
         private:
             KeyType const _key;
             std::atomic< Node* > _forward[1];
@@ -52,7 +51,8 @@ namespace ceto
         public:
             explicit Iterator( const SkipList *list );
             explicit Iterator( const Iterator &itr );
-            explicit Iterator( const SkipList *list, Node* node );
+            explicit Iterator( const SkipList *list,
+                               Node* node );
             BOOLEAN valid() const;
             const KeyType& key();
             void next();
@@ -90,10 +90,12 @@ namespace ceto
     };
 
     /* Skiplist implement */
-    template< typename KeyType, class Comparator >
-        SkipList< KeyType, Comparator >::SkipList( Allocator *allocator ):
+    template< typename KeyType, typename Allocator,
+        typename Comparator, INT32 MAXHEIGHT >
+        SkipList< KeyType, Allocator, Comparator, MAXHEIGHT >::
+        SkipList( Allocator *allocator ):
         _memAlloctor( allocator ), _maxHeight( 1 ),
-        _head( _newNode( 0, MAXHEIGHT ) ), _end( std::nullptr )
+        _head( _newNode( KeyType(), MAXHEIGHT ) ), _end( nullptr )
     {
         for( UINT32 index = 0; index < MAXHEIGHT; index++ )
         {
@@ -101,18 +103,23 @@ namespace ceto
         }
     }
 
-    template< typename KeyType, class Comparator >
-        SkipList< KeyType, Comparator >::~SkipList()
+    template< typename KeyType, typename Allocator,
+        typename Comparator, INT32 MAXHEIGHT >
+        SkipList< KeyType, Allocator, Comparator, MAXHEIGHT >::
+        ~SkipList()
     {
     }
 
-    template< typename KeyType, class Comparator >
-        STATUS SkipList< KeyType, Comparator >::insert( const KeyType &key )
+    template< typename KeyType, typename Allocator,
+        typename Comparator, INT32 MAXHEIGHT >
+        STATUS SkipList< KeyType, Allocator, Comparator, MAXHEIGHT >::
+        insert( const KeyType &key )
     {
         INT32 rc = STATUS_OK;
         INT32 height = _getRandomHeight();
         Node *prev[MAXHEIGHT];
         Node *next = _findGreaterOrEqual( key, &prev );
+        Node *newNode = nullptr;
         if( next != _end && _equal( next->getKey(), key ) )
         {
             rc = STATUS_EXIST_KEY;
@@ -124,9 +131,9 @@ namespace ceto
             {
                 prev[index] = _head;
             }
-            _maxHeight.store( std::memory_order_relaxed, height );
+            _maxHeight.store( height, std::memory_order_relaxed );
         }
-        Node *newNode = _newNode( key, height );
+        newNode = _newNode( key, height );
         for( UINT32 index = 0; index < height; index++ )
         {
             newNode->setNextWithNoBarrier( index, prev[index]->nextWithNoBarrier(index));
@@ -138,49 +145,57 @@ namespace ceto
         goto done;
     }
 
-    template< typename KeyType, class Comparator >
-        SkipList< KeyType, Comparator >::Iterator
-        SkipList< KeyType, Comparator >::find( const KeyType &key )
+    template< typename KeyType, typename Allocator,
+        typename Comparator, INT32 MAXHEIGHT >
+        typename SkipList< KeyType, Allocator, Comparator, MAXHEIGHT >::Iterator
+        SkipList< KeyType, Allocator, Comparator, MAXHEIGHT >::
+        find( const KeyType &key )
     {
         Node* prev[ MAXHEIGHT ];
         Node* node = _findGreaterOrEqual( key, prev );
         return Iterator( this, node );
     }
 
-    template< typename KeyType, class Comparator >
-        SkipList< KeyType, Comparator >::Iterator
-        SkipList< KeyType, Comparator >::begin()
+    template< typename KeyType, typename Allocator,
+        typename Comparator, INT32 MAXHEIGHT >
+        typename SkipList< KeyType, Allocator, Comparator, MAXHEIGHT >::Iterator
+        SkipList< KeyType, Allocator, Comparator, MAXHEIGHT >::begin()
     {
-        SkipList< KeyType, Comparator >::Iterator itr( this, this->_head );
+        Iterator itr( this, this->_head );
         return itr;
     }
 
-    template< typename KeyType, class Comparator >
-        SkipList< KeyType, Comparator >::Iterator
-        SkipList< KeyType, Comparator >::end()
+    template< typename KeyType, typename Allocator,
+        typename Comparator, INT32 MAXHEIGHT >
+        typename SkipList< KeyType, Allocator, Comparator, MAXHEIGHT >::Iterator
+        SkipList< KeyType, Allocator, Comparator, MAXHEIGHT >::end()
     {
-        SkipList< KeyType, Comparator >::Iterator itr( this, this->_end );
+        Iterator itr( this, this->_end );
         return itr;
     }
 
-    template< typename KeyType, class Comparator >
-        INT32  SkipList< KeyType, Comparator >::_getRandomHeight() const
+    template< typename KeyType, typename Allocator,
+        typename Comparator, INT32 MAXHEIGHT >
+        INT32 SkipList< KeyType, Allocator, Comparator, MAXHEIGHT >::
+        _getRandomHeight() const
     {
         const INT32 KBRANCHING = 4;
         INT32 height = 1;
-        Node *prevNode = std::nullptr;
+        Node *prevNode = nullptr;
         while( height < MAXHEIGHT && 0 == _random() % KBRANCHING )
         {
             height++;
         }
-        cetoAssert( height > 0 && height < MAXHEIGHT,
+        cetoAssert( ( height > 0 && height < this->MAXHEIGHT ),
                     "height must greater than 0 and less than MAXHEIGHT" );
         return height;
     }
 
-    template< typename KeyType, class Comparator >
-        SkipList< KeyType, Comparator >::Node*
-        SkipList< KeyType, Comparator >::_findLessThan( const KeyType &key ) const
+    template< typename KeyType, typename Allocator,
+        typename Comparator, INT32 MAXHEIGHT >
+        typename SkipList< KeyType, Allocator, Comparator, MAXHEIGHT >::Node*
+        SkipList< KeyType, Allocator, Comparator, MAXHEIGHT >::
+        _findLessThan( const KeyType &key ) const
     {
         Node *node = _head ;
         INT32 level = _getMaxHeight() - 1;
@@ -207,9 +222,10 @@ namespace ceto
         }
     }
 
-    template< typename KeyType, class Comparator >
-        SkipList< KeyType, Comparator >::Node*
-        SkipList< KeyType, Comparator >::
+    template< typename KeyType, typename Allocator,
+        typename Comparator, INT32 MAXHEIGHT >
+        typename SkipList< KeyType, Allocator, Comparator, MAXHEIGHT >::Node*
+        SkipList< KeyType, Allocator, Comparator, MAXHEIGHT >::
         _findGreaterOrEqual( const KeyType &key, Node** prev ) const
     {
         Node *node = _head ;
@@ -224,7 +240,7 @@ namespace ceto
             }
             else
             {
-                if( prev != std::nullptr )
+                if( prev != nullptr )
                 {
                     prev[level] = node;
                 }
@@ -243,154 +259,192 @@ namespace ceto
         }
     }
 
-    template< typename KeyType, class Comparator >
-        INT32 SkipList< KeyType, Comparator >::_getMaxHeight() const
+    template< typename KeyType, typename Allocator,
+        typename Comparator, INT32 MAXHEIGHT >
+        INT32 SkipList< KeyType, Allocator, Comparator, MAXHEIGHT >::
+        _getMaxHeight() const
     {
         return _maxHeight.load( std::memory_order_relaxed );
     }
 
-    template< typename KeyType, class Comparator >
-        SkipList< KeyType, Comparator >::Node*
-        SkipList< KeyType, Comparator >::_newNode( const KeyType &key,
-                                                            INT32 height )
+    template< typename KeyType, typename Allocator,
+        typename Comparator, INT32 MAXHEIGHT >
+        typename SkipList< KeyType, Allocator, Comparator, MAXHEIGHT >::Node*
+        SkipList< KeyType, Allocator, Comparator, MAXHEIGHT >::
+        _newNode( const KeyType &key, INT32 height )
     {
         char *mem = _memAlloctor->alloc( sizeof(Node) +
                     sizeof(std::atomic< Node* >) * (height - 1) );
         return new (mem) Node(key);
     }
 
-    template< typename KeyType, class Comparator >
-        BOOLEAN SkipList< KeyType, Comparator >::_keyIsAfterNode
-        ( const KeyType &key, Node* node ) const
+    template< typename KeyType, typename Allocator,
+        typename Comparator, INT32 MAXHEIGHT >
+        BOOLEAN SkipList< KeyType, Allocator, Comparator, MAXHEIGHT >::
+        _keyIsAfterNode( const KeyType &key, Node* node ) const
     {
-        cetoAssert( node != std::nullptr, "node must not be nullptr" );
+        cetoAssert( node != nullptr, "node must not be nullptr" );
         return ( node != _end &&
-                  ( _comparator( node->getKey(), key ) < 0 ) )
+                  ( _comparator( node->getKey(), key ) < 0 ) );
     }
     /* Node implement */
-    template< typename KeyType, class Comparator >
-        SkipList< KeyType, Comparator >::Node::Node( const KeyType& key ): _key( key )
+    template< typename KeyType, typename Allocator,
+        typename Comparator, INT32 MAXHEIGHT >
+        SkipList< KeyType, Allocator, Comparator, MAXHEIGHT >::Node::
+        Node( const KeyType& key ): _key( key )
     {
     }
 
-    template< typename KeyType, class Comparator >
-        SkipList< KeyType, Comparator >::Node*
-        SkipList< KeyType, Comparator >::Node::next( INT32 position ) const
+    template< typename KeyType, typename Allocator,
+        typename Comparator, INT32 MAXHEIGHT >
+        typename SkipList< KeyType, Allocator, Comparator, MAXHEIGHT >::Node*
+        SkipList< KeyType, Allocator, Comparator, MAXHEIGHT >::Node::
+        next( INT32 position ) const
     {
         return this->_forward[ position ].load( std::memory_order_acquire );
     }
 
-    template< typename KeyType, class Comparator >
-        void SkipList< KeyType, Comparator >::Node::setNext( INT32 position, Node* next )
+    template< typename KeyType, typename Allocator,
+        typename Comparator, INT32 MAXHEIGHT >
+        void SkipList< KeyType, Allocator, Comparator, MAXHEIGHT >::Node::
+        setNext( INT32 position, Node* next )
     {
         this->_forward[ position ].store( next, std::memory_order_release );
     }
 
 
-    template< typename KeyType, class Comparator >
-        SkipList< KeyType, Comparator >::Node*
-        SkipList< KeyType, Comparator >::Node::nextWithNoBarrier( INT32 position ) const
+    template< typename KeyType, typename Allocator,
+        typename Comparator, INT32 MAXHEIGHT >
+        typename SkipList< KeyType, Allocator, Comparator, MAXHEIGHT >::Node*
+        SkipList< KeyType, Allocator, Comparator, MAXHEIGHT >::Node::
+        nextWithNoBarrier( INT32 position ) const
     {
         return this->_forward[ position ].load( std::memory_order_relaxed );
     }
 
-    template< typename KeyType, class Comparator >
-        void SkipList< KeyType, Comparator >::Node::setNextWithNoBarrier
-        ( INT32 position, Node* next )
+    template< typename KeyType, typename Allocator,
+        typename Comparator, INT32 MAXHEIGHT >
+        void SkipList< KeyType, Allocator, Comparator, MAXHEIGHT >::Node::
+        setNextWithNoBarrier( INT32 position, Node* next )
     {
         this->_forward[ position ].store( next, std::memory_order_relaxed );
     }
 
-    template< typename KeyType, class Comparator >
-        const KeyType& SkipList< KeyType, Comparator >::Node::getKey() const
+    template< typename KeyType, typename Allocator,
+        typename Comparator, INT32 MAXHEIGHT >
+        const KeyType& SkipList< KeyType, Allocator, Comparator, MAXHEIGHT >::
+        Node::getKey() const
     {
         return this->_key;
     }
 
     /* Iterator implement */
-    template< typename KeyType, class Comparator >
-        SkipList< KeyType, Comparator >::Iterator::Iterator( const SkipList *list ):
-        _list( list ), _node( nullptr )
+    template< typename KeyType, typename Allocator,
+        typename Comparator, INT32 MAXHEIGHT >
+        SkipList< KeyType, Allocator, Comparator, MAXHEIGHT >::Iterator::
+        Iterator( const SkipList *list ): _list( list ), _node( nullptr )
     {
     }
 
-    template< typename KeyType, class Comparator >
-        SkipList< KeyType, Comparator >::Iterator::Iterator( Iterator itr ):
-        _list( itr._list ), _node( itr._node )
+    template< typename KeyType, typename Allocator,
+        typename Comparator, INT32 MAXHEIGHT >
+        SkipList< KeyType, Allocator, Comparator, MAXHEIGHT >::Iterator::
+        Iterator( const Iterator &itr ): _list( itr._list ), _node( itr._node )
     {
     }
 
-    template< typename KeyType, class Comparator >
-        SkipList< KeyType, Comparator >::Iterator::
+    template< typename KeyType, typename Allocator,
+        typename Comparator, INT32 MAXHEIGHT >
+        SkipList< KeyType, Allocator, Comparator, MAXHEIGHT >::Iterator::
         Iterator( const SkipList *list, Node* node ):
             _list( list ), _node( node )
     {
     }
 
-    template< typename KeyType, class Comparator >
-        BOOLEAN SkipList< KeyType, Comparator >::Iterator::valid() const
+    template< typename KeyType, typename Allocator,
+        typename Comparator, INT32 MAXHEIGHT >
+        BOOLEAN SkipList< KeyType, Allocator, Comparator, MAXHEIGHT >::Iterator::
+        valid() const
     {
-        return std::nullptr == this->_node ;
+        return nullptr == this->_node ;
     }
 
-    template< typename KeyType, class Comparator >
-        const KeyType& SkipList< KeyType, Comparator >::Iterator::key()
+    template< typename KeyType, typename Allocator,
+        typename Comparator, INT32 MAXHEIGHT >
+        const KeyType&
+        SkipList< KeyType, Allocator, Comparator, MAXHEIGHT >::Iterator::key()
     {
         return this->_node->getKey();
     }
 
-    template< typename KeyType, class Comparator >
-        void SkipList< KeyType, Comparator >::Iterator::next()
+    template< typename KeyType, typename Allocator,
+        typename Comparator, INT32 MAXHEIGHT >
+        void SkipList< KeyType, Allocator, Comparator, MAXHEIGHT >::Iterator::
+        next()
     {
         cetoAssert( this->valid(), "Node must be valid" );
         this->_node = this->_node->next(0);
     }
 
-    template< typename KeyType, class Comparator >
-        void SkipList< KeyType, Comparator >::Iterator::prev()
+    template< typename KeyType, typename Allocator,
+        typename Comparator, INT32 MAXHEIGHT >
+        void SkipList< KeyType, Allocator, Comparator, MAXHEIGHT >::Iterator::
+        prev()
     {
         this->_node = this->_list->findLessThan( this->_node->getKey() );
         if( this->_node == this->_list->_head )
         {
-            this->_node = std::nullptr;
+            this->_node = nullptr;
         }
     }
 
-    template< typename KeyType, class Comparator >
-        void SkipList< KeyType, Comparator >::Iterator::seek( const KeyType &key )
+    template< typename KeyType, typename Allocator,
+        typename Comparator, INT32 MAXHEIGHT >
+        void SkipList< KeyType, Allocator, Comparator, MAXHEIGHT >::Iterator::
+        seek( const KeyType &key )
     {
         this->_node = this->_list->findGreaterOrEqual( this->_node->getKey() );
     }
 
-    template< typename KeyType, class Comparator >
-        void SkipList< KeyType, Comparator >::Iterator::seekToBegin()
+    template< typename KeyType, typename Allocator,
+        typename Comparator, INT32 MAXHEIGHT >
+        void SkipList< KeyType, Allocator, Comparator, MAXHEIGHT >::Iterator::
+        seekToBegin()
     {
         this->_node = this->_list->_head->next( 0 );
     }
 
-    template< typename KeyType, class Comparator >
-        void SkipList< KeyType, Comparator >::Iterator::seekToEnd()
+    template< typename KeyType, typename Allocator,
+        typename Comparator, INT32 MAXHEIGHT >
+        void SkipList< KeyType, Allocator, Comparator, MAXHEIGHT >::Iterator::
+        seekToEnd()
     {
         this->_node = this->_list.end()._node;
     }
 
-    template< typename KeyType, class Comparator >
-        SkipList< KeyType, Comparator >::Node&
-        SkipList< KeyType, Comparator >::Iterator::operator *() const
+    template< typename KeyType, typename Allocator,
+        typename Comparator, INT32 MAXHEIGHT >
+        typename SkipList< KeyType, Allocator, Comparator, MAXHEIGHT >::Node&
+        SkipList< KeyType, Allocator, Comparator, MAXHEIGHT >::Iterator::
+        operator *() const
     {
         return *(this->_node ) ;
     }
 
-    template< typename KeyType, class Comparator >
-        SkipList< KeyType, Comparator >::Node*
-        SkipList< KeyType, Comparator >::Iterator::operator ->() const
+    template< typename KeyType, typename Allocator,
+        typename Comparator, INT32 MAXHEIGHT >
+        typename SkipList< KeyType, Allocator, Comparator, MAXHEIGHT >::Node*
+        SkipList< KeyType, Allocator, Comparator, MAXHEIGHT >::Iterator::
+        operator ->() const
     {
         return this->_node;
     }
 
-    template< typename KeyType, class Comparator >
-        SkipList< KeyType, Comparator >::Iterator&
-        SkipList< KeyType, Comparator >::Iterator::operator =
+    template< typename KeyType, typename Allocator,
+        typename Comparator, INT32 MAXHEIGHT >
+        typename SkipList< KeyType, Allocator, Comparator, MAXHEIGHT >::Iterator&
+        SkipList< KeyType, Allocator, Comparator, MAXHEIGHT >::Iterator::
+        operator =
         ( const Iterator &itr ) const
     {
         this->_node = itr._node;
@@ -398,8 +452,9 @@ namespace ceto
         return *this;
     }
 
-    template< typename KeyType, class Comparator >
-        BOOLEAN SkipList< KeyType, Comparator >::Iterator::
+    template< typename KeyType, typename Allocator,
+        typename Comparator, INT32 MAXHEIGHT >
+        BOOLEAN SkipList< KeyType, Allocator, Comparator, MAXHEIGHT >::Iterator::
         operator ==( const Iterator &itr ) const
     {
         return this->_node == itr._node && this->_list == itr._list;
