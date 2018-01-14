@@ -1,11 +1,11 @@
-project(cetoBigTable)
+PROJECT(cetoBigTable)
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wall -fPIC")
+SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wall -fPIC")
 
-OPTION( BUILD_EXE "build exe" TRUE )
 OPTION( BUILD_TEST "build testcase" FALSE )
+
 # include header file
-include_directories(
+INCLUDE_DIRECTORIES(
 	./src/include/container/
 	./src/include/os
 	./src/include/binary
@@ -14,13 +14,11 @@ include_directories(
 	./src/include/tools
 )
 # cpp file
-	add_library(container STATIC
+	ADD_LIBRARY(container STATIC
 		./src/container/cetoMemTableSL.cpp
 	)
-IF(BUILD_EXE)
-
-ENDIF()
 
 IF(BUILD_TEST)
 # build testcase
+ADD_SUBDIRECTORY(test)
 ENDIF()
