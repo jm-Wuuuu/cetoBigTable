@@ -2,11 +2,11 @@ PROJECT(cetoBigTable)
 
 # include test include dir
 INCLUDE_DIRECTORIES(
-	../thirdparty/googletest/googletest/include/
-	../thirdparty/googletest/googletest/
+	${CMAKE_SOURCE_DIR}/thirdparty/googletest/googletest/include/
+	${CMAKE_SOURCE_DIR}/thirdparty/googletest/googletest/
 )
 
 # cpp file
 	ADD_LIBRARY(gtest STATIC
-		../thirdparty/googletest/googletest/src/gtest-all.cc
+		${CMAKE_SOURCE_DIR}/thirdparty/googletest/googletest/src/gtest-all.cc
 	)
