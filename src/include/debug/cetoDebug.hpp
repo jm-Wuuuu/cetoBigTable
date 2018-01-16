@@ -4,24 +4,18 @@
 namespace ceto
 {
 
-    static void _cetoPanic()
-    {
-        INT32 *ptr = NULL;
-        *ptr = 10;
-    }
-#if defined(CETO_CLIENT)
+#ifdef _DEBUG
     inline void cetoAssert( BOOLEAN cond, const CHAR* str )
     {
         assert( cond );
     }
-#elif defined(CETO_SERVER)
+#else
     inline void cetoAssert( BOOLEAN cond, const CHAR* str )
     {
         if( !cond )
         {
 
         }
-        _cetoPanic();
     }
 #endif
 }

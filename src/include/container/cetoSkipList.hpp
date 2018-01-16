@@ -94,8 +94,8 @@ namespace ceto
         typename Comparator, INT32 MAXHEIGHT >
         SkipList< KeyType, Allocator, Comparator, MAXHEIGHT >::
         SkipList( Allocator *allocator ):
-        _memAlloctor( allocator ), _maxHeight( 1 ),
-        _head( _newNode( KeyType(), MAXHEIGHT ) ), _end( nullptr )
+        _head( _newNode( KeyType(), MAXHEIGHT ) ), _end( nullptr ),
+        _memAlloctor( allocator ), _maxHeight( 1 )
     {
         for( UINT32 index = 0; index < MAXHEIGHT; index++ )
         {
