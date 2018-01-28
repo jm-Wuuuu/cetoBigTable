@@ -2,6 +2,14 @@
 
 namespace ceto
 {
+    typedef UINT64 SequenceNumber ;
+    // value type
+    enum ENUM_VALUE_TYPE
+    {
+        ENUM_VALUE_TYPE_ADD = 0x0,
+        ENUM_VALUE_TYPE_DEL = 0x1,
+    };
+
     // MemTableSLKeyComparator implement
     INT32 MemTableSLKeyComparator::operator ()( const MemTableSLKey &lhs,
                                                const MemTableSLKey &rhs )
@@ -19,7 +27,7 @@ namespace ceto
         return STATUS_OK;
     }
 
-    STATUS CetoMemTableSL::insert( const BinData& key, const BinData& value )
+    STATUS CetoMemTableSL::insert( SequenceNumber, const BinData& key, const BinData& value )
     {
         return STATUS_OK;
     }

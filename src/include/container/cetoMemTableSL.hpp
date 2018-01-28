@@ -8,6 +8,7 @@ namespace ceto
     // MemTableSLKey define
     struct MemTableSLKey
     {
+        MemTableSLKey( UINT32 keyLen, CHAR*keyBuf, UINT32 valLen, CHAR*valBuf );
         BinData key;
         BinData value;
     };
@@ -28,7 +29,7 @@ namespace ceto
         virtual STATUS insert( const BinData& key, const BinData& value );
         virtual STATUS query( const BinData& key, BinData& value );
     private:
-        SkipList< MemTableSLKey, MemAllocator, MemTableSLKeyComparator > _list;
+        SkipList< CHAR*, MemAllocator, MemTableSLKeyComparator > _list;
     };
 }
 #endif
