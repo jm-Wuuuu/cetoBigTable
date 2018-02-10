@@ -7,10 +7,15 @@ namespace ceto
 {
     struct BinData
     {
-        static STATUS newBinData( UINT32 len, CHAR*buf );
+        BinData();
+        BinData( UINT32 len, CHAR* buf );
+        BinData( CHAR* str );
         UINT32 len;
-        CHAR buf[1];
+        CHAR *buf;
         static INT32 compare( const BinData& lhs, const BinData& rhs ) ;
+        BOOLEAN operator <( const BinData& rhs ) ;
+    private:
+        BinData();
     };
 
 }
