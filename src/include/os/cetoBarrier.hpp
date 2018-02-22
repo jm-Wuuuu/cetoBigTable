@@ -33,6 +33,7 @@ namespace ceto
         inline T loadWithBarrier() const
         {
             memoryBarrier();
+            T retVal = _value;
             return retVal;
         }
 
