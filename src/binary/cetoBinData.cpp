@@ -2,15 +2,15 @@ include "cetoBinData.hpp"
 
 namespace ceto
 {
-    BinData::BinData(): len( 0 ), buf( nullptr )
+    BinData::BinData(): _len( 0 ), _buf( nullptr )
     {
     }
 
-    BinData::BinData( UINT32 bufLen, CHAR* buff ): len( bufLen ), buf( buff )
+    BinData::BinData( size_t bufLen, CHAR* buff ): _len( bufLen ), _buf( buff )
     {
     }
 
-    BinData::BinData( CHAR* str ): len( strlen( str ) ), buf( str )
+    BinData::BinData( CHAR* str ): _len( strlen( str ) ), _buf( str )
     {
     }
 
@@ -21,11 +21,11 @@ namespace ceto
 
     INT32 BinData::compare( const BinData& lhs, const BinData& rhs )
     {
-        UINT32 leftLen = lhs.len;
-        UINT32 rightLen = rhs.len;
-        const CHAR* leftBuf = &lhs.buf;
-        const CHAR* rightBuf = &rhs.buf;
-        UINT32 minLen = lhs.len > rhs.len ? lhs.len: rhs.len;
+        size_t leftLen = lhs.len();
+        size_t rightLen = rhs.len();
+        const CHAR* leftBuf = &lhs.data();
+        const CHAR* rightBuf = &rhs.data();
+        UINT32 minLen = leftLen > rightLen ? leftLen: rightLen;
         INT16 result = 0;
 
         // Compare each char

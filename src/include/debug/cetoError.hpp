@@ -8,6 +8,6 @@ namespace ceto
     #define STATUS_OK               0
     #define STATUS_EXIST_KEY        -1
     #define STATUS_NOTEXIST_KEY     -2
-
+    #define STATUS_OOM              -3
 }
 #endif

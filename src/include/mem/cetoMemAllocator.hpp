@@ -16,10 +16,10 @@ namespace ceto
         INT32 _allocSize;
     };
 
-    inline MemAllocator& getMemAllocator()
+/*    inline MemAllocator& getMemAllocator()
     {
         static MemAllocator memAllocator;
         return memAllocator;
-    }
+    }*/
 }
 #endif

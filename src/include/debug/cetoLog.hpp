@@ -3,7 +3,7 @@
 #include <stdarg.h>
 #include <mutex>
 #include <unistd.h>
-
+#include "cetoError.hpp"
 namespace ceto
 {
     /* Api */
@@ -77,12 +77,15 @@ namespace ceto
         }
     }
 
-    inline void CETOLOG( LOG_LEVEL level, const *fmt, ... )
+    inline void CETOLOG( LOG_LEVEL level, const CHAR* fmt, ... )
     {
         va_list ap;
-        va_start( ap, fmt );                                                \
-        getCetoLog().writeLog( level, fmt, ap );                         \
+        va_start( ap, fmt );
+        getCetoLog().writeLog( level, fmt, ap );
         va_end( ap );
     }
+
+    // TODO
+    inline TEST_RESULT( BOOLEAN condition, STATUS retCode, const CHAR* fmt, ... );
 }
 #endif
