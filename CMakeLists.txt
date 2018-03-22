@@ -2,7 +2,7 @@ PROJECT(cetoBigTable)
 
 SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wall -fPIC")
 SET(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/build)
-OPTION( BUILD_TEST "build testcase" FALSE )
+OPTION(BUILD_TEST "build testcase" FALSE)
 # include header file
 INCLUDE_DIRECTORIES(
 	${CMAKE_SOURCE_DIR}/src/include/container/

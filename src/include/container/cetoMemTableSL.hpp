@@ -12,6 +12,20 @@ namespace ceto
     };
 
 
+    class QueryKey
+    {
+        const UINT32 QUERYKEY_BUF_LEN = 0;
+        QueryKey(const BinData&userKey, UINT64 sequenceNumber,
+                 ValueType type = ENUM_TYPE_ADD);
+        BinData userKey() const;
+        BinData internalKey() const;
+        BinData memKey() const;
+    private:
+        CHAR* _memKeyStart;
+        CHAR* _userKeyStart;
+        CHAR* _end;
+        CHAR _buf[QUERYKEY_BUF_LEN];
+    };
 
     // CetoMemTableSL define
     class CetoMemTableSL: public CetoMemTable
@@ -22,17 +36,19 @@ namespace ceto
         // MemTableSLKeyComparator define
         struct MemTableSLKeyComparator
         {
-            INT32 operator ()( const KeyType &lhs, const KeyType &rhs );
+            INT32 operator ()(const KeyType &lhs, const KeyType &rhs);
         };
         CetoMemTableSL();
         ~CetoMemTableSL();
-        virtual STATUS insert( UINT64 sequenceNumber,
-                               const BinData& key, ValueType type,
-                               const BinData& value );
-        virtual STATUS query( const BinData& key, BinData& value );
+        virtual STATUS insert(UINT64 sequenceNumber,
+                              const BinData& key, ValueType type,
+                              const BinData& value);
+        virtual STATUS query(const QueryKey& key, BinData& value);
     private:
         MemAllocator _allocator;
-        SkipList< KeyType, MemAllocator, MemTableSLKeyComparator > _list;
+        typedef SkipList<KeyType,
+            MemAllocator, MemTableSLKeyComparator> INTELNALLIST;
+        INTELNALLIST _list;
     };
 }
 #endif

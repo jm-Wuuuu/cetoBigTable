@@ -9,8 +9,8 @@ namespace ceto
     {
     public:
         virtual STATUS init() = 0;
-        virtual STATUS insert( const BinData& key, const BinData& value ) = 0;
-        virtual STATUS query( const BinData& key, BinData& value ) = 0;
+        virtual STATUS insert(const BinData& key, const BinData& value) = 0;
+        virtual STATUS query(const BinData& key, BinData& value) = 0;
     };
 }
 #endif

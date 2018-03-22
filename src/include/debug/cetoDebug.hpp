@@ -5,14 +5,14 @@ namespace ceto
 {
 
 #ifdef _DEBUG
-    inline void cetoAssert( BOOLEAN cond, const CHAR* str )
+    inline void cetoAssert(BOOLEAN cond, const CHAR* str)
     {
-        assert( cond );
+        assert(cond);
     }
 #else
-    inline void cetoAssert( BOOLEAN cond, const CHAR* str )
+    inline void cetoAssert(BOOLEAN cond, const CHAR* str)
     {
-        if( !cond )
+        if(!cond)
         {
 
         }

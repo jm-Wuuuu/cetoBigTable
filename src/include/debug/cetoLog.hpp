@@ -7,8 +7,8 @@
 namespace ceto
 {
     /* Api */
-    inline void LOG_INIT( const string filename, LOG_LEVEL level = DEFAULT );
-    inline void CETOLOG( LOG_LEVEL level, const *fmt, ... );
+    inline void LOG_INIT(const string filename, LOG_LEVEL level = DEFAULT);
+    inline void CETOLOG(LOG_LEVEL level, const *fmt, ...);
 
     /* Log level */
     enum LOG_LEVEL
@@ -26,13 +26,13 @@ namespace ceto
     {
     public:
         ~LogSingleton();
-        void writeLog( LOG_LEVEL level, const CHAR* fmt, va_list ap );
+        void writeLog(LOG_LEVEL level, const CHAR* fmt, va_list ap);
 
-        inline void setLogLevel( LOG_LEVEL level )
+        inline void setLogLevel(LOG_LEVEL level)
         {
             _level = level;
         }
-        inline void setLogFileName( const string &filename )
+        inline void setLogFileName(const string &filename)
         {
             _filename = filename ;
         }
@@ -63,29 +63,29 @@ namespace ceto
         return LogSingleton::singleton;
     }
 
-    inline void LOG_INIT( const string filename, LOG_LEVEL level )
+    inline void LOG_INIT(const string filename, LOG_LEVEL level)
     {
         LogSingleton& logObj = getCetoLog();
-        logObj.setLogFileName( filename );
-        logObj.setLogLevel( level );
-        if( access( filename, F_OK ) )
+        logObj.setLogFileName(filename);
+        logObj.setLogLevel(level);
+        if(access(filename, F_OK))
         {
-            if( mkdir( LOG_PATH, S_IRWXU | S_IRWXG ) )
+            if(mkdir(LOG_PATH, S_IRWXU | S_IRWXG))
             {
-                printf( "Failed to create dir log\n" );
+                printf("Failed to create dir log\n");
             }
         }
     }
 
-    inline void CETOLOG( LOG_LEVEL level, const CHAR* fmt, ... )
+    inline void CETOLOG(LOG_LEVEL level, const CHAR* fmt, ...)
     {
         va_list ap;
-        va_start( ap, fmt );
-        getCetoLog().writeLog( level, fmt, ap );
-        va_end( ap );
+        va_start(ap, fmt);
+        getCetoLog().writeLog(level, fmt, ap);
+        va_end(ap);
     }
 
     // TODO
-    inline TEST_RESULT( BOOLEAN condition, STATUS retCode, const CHAR* fmt, ... );
+    inline TEST_RESULT(BOOLEAN condition, STATUS retCode, const CHAR* fmt, ...);
 }
 #endif

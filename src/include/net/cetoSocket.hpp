@@ -5,8 +5,8 @@ namespace ceto
 {
     typedef int ctSocket;
 
-    INT32 ctListen( ctSocket fd );
+    INT32 ctListen(ctSocket fd);
 
-    INT32 ctAccept( ctSocket fd );
+    INT32 ctAccept(ctSocket fd);
 }
 #endif

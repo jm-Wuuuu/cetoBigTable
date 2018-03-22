@@ -16,55 +16,55 @@ namespace ceto
     {
     }
 
-    LogSingleton::LogSingleton(): _level( DEFAULT )
+    LogSingleton::LogSingleton(): _level(DEFAULT)
     {
     }
 
-    void LogSingleton::writeLog( LOG_LEVEL level, const CHAR* fmt, va_list ap )
+    void LogSingleton::writeLog(LOG_LEVEL level, const CHAR* fmt, va_list ap)
     {
-        if( level > _level )
+        if(level > _level)
         {
             return;
         }
-        CHAR msg[ CETO_LOGMSG_MAX_LEN ];
+        CHAR msg[CETO_LOGMSG_MAX_LEN];
         bool logToStdout = _filename.empty();
         FILE *fp = NULL;
-        CHAR buf[ 1024 ];
+        CHAR buf[1024];
 
-        va_start( ap, fmt );                                                \
-        vsnprintf( msg, sizeof( msg ), fmt, ap );                           \
-        va_end( ap );
+        va_start(ap, fmt);                                                \
+        vsnprintf(msg, sizeof(msg), fmt, ap);                           \
+        va_end(ap);
 
         {
-            std::lock_guard<std::mutex> lock( _mutex );
+            std::lock_guard<std::mutex> lock(_mutex);
             fp = logToStdout ? stdout :
-                               fopen( CetoLog::getLogFile().c_str(), "a" );
+                               fopen(CetoLog::getLogFile().c_str(), "a");
             // Failed to open file
-            if( !fp )
+            if(!fp)
             {
                 return;
             }
 
-            if( RAW == level )
+            if(RAW == level)
             {
-                fprintf( fp, "%s", msg );
+                fprintf(fp, "%s", msg);
             }
             else
             {
                 INT32 off;
                 time_t lt;
                 lt =time(NULL);
-                strftime( buf, sizeof( buf ), "%d %b %H:%M:%S", localtime( &lt ) );
-                fprintf( fp, CETO_LOG_FORMAT, ( INT32 )getpid(), getTID,
-                         _levelStr[ level ], basename( __FILE__ ),
-                         __FUNCTION__, __LINE__, buf, msg );
+                strftime(buf, sizeof(buf), "%d %b %H:%M:%S", localtime(&lt));
+                fprintf(fp, CETO_LOG_FORMAT, (INT32)getpid(), getTID,
+                         _levelStr[level], basename(__FILE__),
+                         __FUNCTION__, __LINE__, buf, msg);
 
             }
-            fflush( fp );
+            fflush(fp);
 
-            if( !logToStdout )
+            if(!logToStdout)
             {
-                fclose( fp );
+                fclose(fp);
             }
         }
     }

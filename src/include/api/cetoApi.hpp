@@ -16,15 +16,15 @@ namespace ceto
     class DBTable
     {
     public:
-        INT32 open( const string& dbName, DBMODE mode = DB_OPEN );
+        INT32 open(const string& dbName, DBMODE mode = DB_OPEN);
 
-        INT32 insert( const BinData &key, const BinData &value );
+        INT32 insert(const BinData &key, const BinData &value);
 
-        INT32 delete( const BinData &key );
+        INT32 delete(const BinData &key);
 
-        INT32 query( const BinData &key );
+        INT32 query(const BinData &key);
 
-        static INT32 removeDB( const string& dbName );
+        static INT32 removeDB(const string& dbName);
     };
 }
 #endif

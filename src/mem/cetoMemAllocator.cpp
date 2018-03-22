@@ -3,13 +3,13 @@
 #include <stdlib.h>
 namespace ceto
 {
-    CHAR* MemAllocator::alloc( UINT32 byte )
+    CHAR* MemAllocator::alloc(UINT32 byte)
     {
-        return static_cast<CHAR*>( malloc( byte ) );
+        return static_cast<CHAR*>(malloc(byte));
     }
 
-    void MemAllocator::release( void* buffer )
+    void MemAllocator::release(void* buffer)
     {
-        free( buffer );
+        free(buffer);
     }
 }

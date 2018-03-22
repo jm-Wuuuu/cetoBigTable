@@ -2,24 +2,24 @@ include "cetoBinData.hpp"
 
 namespace ceto
 {
-    BinData::BinData(): _len( 0 ), _buf( nullptr )
+    BinData::BinData(): _len(0), _buf(nullptr)
     {
     }
 
-    BinData::BinData( size_t bufLen, CHAR* buff ): _len( bufLen ), _buf( buff )
+    BinData::BinData(size_t bufLen, CHAR* buff): _len(bufLen), _buf(buff)
     {
     }
 
-    BinData::BinData( CHAR* str ): _len( strlen( str ) ), _buf( str )
+    BinData::BinData(CHAR* str): _len(strlen(str)), _buf(str)
     {
     }
 
-    BOOLEAN BinData::operator <( const BinData& rhs )
+    BOOLEAN BinData::operator <(const BinData& rhs)
     {
-        return compare( *this, rhs ) > 0;
+        return compare(*this, rhs) > 0;
     }
 
-    INT32 BinData::compare( const BinData& lhs, const BinData& rhs )
+    INT32 BinData::compare(const BinData& lhs, const BinData& rhs)
     {
         size_t leftLen = lhs.len();
         size_t rightLen = rhs.len();
@@ -29,25 +29,25 @@ namespace ceto
         INT16 result = 0;
 
         // Compare each char
-        for( UINT32 index = 0; index < minLen; index++ )
+        for(UINT32 index = 0; index < minLen; index++)
         {
             result = leftBuf[index] - rightBuf[index] ;
-            if( result > 0 )
+            if(result > 0)
             {
                 return 1;
             }
-            else if( result < 0 )
+            else if(result < 0)
             {
                 return -1;
             }
         }
 
         // Compare len
-        if( leftLen > rightLen )
+        if(leftLen > rightLen)
         {
             return 1;
         }
-        else if( rightLen > leftLen )
+        else if(rightLen > leftLen)
         {
             return -1;
         }

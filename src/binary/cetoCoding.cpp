@@ -2,27 +2,27 @@
 #include "cetoPortable.hpp"
 namespace ceto
 {
-    size_t getVarIntLength( UINT64 length )
+    size_t getVarIntLength(UINT64 length)
     {
         return sizeof(length);
     }
 
-    size_t getVarIntLength( UINT32 length )
+    size_t getVarIntLength(UINT32 length)
     {
-        return sizeof( length);
+        return sizeof(length);
     }
 
-    CHAR* encodeVarInt32( CHAR* buf, UINT32 len )
+    CHAR* encodeVarInt32(CHAR* buf, UINT32 len)
     {
         // TODO: implement varint coding
-        return encodeInt32( buf, len );
+        return encodeInt32(buf, len);
     }
 
-    CHAR* encodeInt32( CHAR* buf, UINT32 val )
+    CHAR* encodeInt32(CHAR* buf, UINT32 val)
     {
-        if( BYTE_ORDER == LITTLE_ENDIAN )
+        if(BYTE_ORDER == LITTLE_ENDIAN)
         {
-            memcpy( buf, &val, sizeof(val) );
+            memcpy(buf, &val, sizeof(val));
         }
         else
         {
@@ -34,11 +34,11 @@ namespace ceto
         return buf + sizeof(val);
     }
 
-    CHAR* encodeInt64( CHAR* buf, UINT64 val )
+    CHAR* encodeInt64(CHAR* buf, UINT64 val)
     {
-        if( BYTE_ORDER == LITTLE_ENDIAN )
+        if(BYTE_ORDER == LITTLE_ENDIAN)
         {
-            memcpy( buf, &val, sizeof(val) );
+            memcpy(buf, &val, sizeof(val));
         }
         else
         {

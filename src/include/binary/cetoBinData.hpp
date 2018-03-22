@@ -8,8 +8,8 @@ namespace ceto
     struct BinData
     {
         BinData();
-        BinData( size_t len, CHAR* buf );
-        BinData( CHAR* str );
+        BinData(size_t len, CHAR* buf);
+        BinData(CHAR* str);
         size_t len()
         {
             return _len;
@@ -18,8 +18,8 @@ namespace ceto
         {
             return _buf;
         }
-        static INT32 compare( const BinData& lhs, const BinData& rhs ) ;
-        BOOLEAN operator <( const BinData& rhs ) ;
+        static INT32 compare(const BinData& lhs, const BinData& rhs) ;
+        BOOLEAN operator <(const BinData& rhs) ;
 
     private:
         size_t _len;

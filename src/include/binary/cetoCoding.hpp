@@ -3,14 +3,15 @@
 #include "cetoType.hpp"
 namespace ceto
 {
-    size_t getVarIntLength( UINT64 length );
+    #define VARINT32_MAX_LEN    5
+    size_t getVarIntLength(UINT64 length);
 
-    size_t getVarIntLength( UINT32 length );
+    size_t getVarIntLength(UINT32 length);
 
-    CHAR* encodeVarInt32( CHAR* buf, UINT32 len );
+    CHAR* encodeVarInt32(CHAR* buf, UINT32 len);
 
-    CHAR* encodeInt32( CHAR* buf, UINT32 val );
+    CHAR* encodeInt32(CHAR* buf, UINT32 val);
 
-    CHAR* encodeInt64( CHAR* buf, UINT64 val );
+    CHAR* encodeInt64(CHAR* buf, UINT64 val);
 }
 #endif

@@ -5,27 +5,23 @@ namespace ceto
 {
     inline void memoryBarrier()
     {
-        __asm__ __volatile__( "" : : : "memory" );
+        __asm__ __volatile__("" : : : "memory");
     }
 
-    template< typename T >
+    template<typename T>
     class Barrier
     {
     public:
-        Barrier()
-        {
-        }
+        Barrier() {}
 
-        explicit Barrier( T initVal ): _value( initVal )
-        {
-        }
+        explicit Barrier(T initVal): _value(initVal) {}
 
         inline T load() const
         {
             return _value;
         }
 
-        inline void store( T val )
+        inline void store(T val)
         {
             _value = val;
         }
@@ -37,7 +33,7 @@ namespace ceto
             return retVal;
         }
 
-        inline void storeWithBarrier( T val )
+        inline void storeWithBarrier(T val)
         {
             memoryBarrier();
             _value = val;
