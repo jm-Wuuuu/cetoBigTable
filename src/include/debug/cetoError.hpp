@@ -3,11 +3,14 @@
 
 namespace ceto
 {
-    typedef INT32 STATUS;
-
-    #define STATUS_OK               0
-    #define STATUS_EXIST_KEY        -1
-    #define STATUS_NOTEXIST_KEY     -2
-    #define STATUS_OOM              -3
+    enum STATUS
+    {
+        STATUS_OK = 0,
+        STATUS_EXIST_KEY = -1,
+        STATUS_NOTEXIST_KEY = -2,
+        STATUS_OOM = -3,
+        STATUS_INVALIAD_KEY = -4,
+        STATUS_MAX = -1024
+    }
 }
 #endif

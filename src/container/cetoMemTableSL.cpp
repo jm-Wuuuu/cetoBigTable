@@ -52,10 +52,14 @@ namespace ceto
     }
 
     // MemTableSLKeyComparator implement
-    INT32 MemTableSLKeyComparator::operator ()(const MemTableSLKey &lhs,
-                                               const MemTableSLKey &rhs)
+    INT32 MemTableSLKeyComparator::operator ()(const CHAR* lhs, const CHAR* rhs)
     {
-        return BinData::compare(lhs.key, rhs.key) ;
+        UINT32 lhsLen = 0;
+        UINT32 rhsLen = 0;
+        CHAR* lhsBuf = getVarInt32Ptr(lhs, lhs + VARINT32_MAX_LEN, lhsLen);
+        CHAR* rhsBuf = getVarInt32Ptr(rhs, rhs + VARINT32_MAX_LEN, rhsLen);
+        return BinData::compare(BinData(lhsBuf, lhsLen),
+                                BinData(rhsBuf, rhsLen));
     }
 
     // CetoMemTableSL implement
@@ -96,9 +100,20 @@ namespace ceto
 
     STATUS CetoMemTableSL::query(const QueryKey& key, BinData& value)
     {
-        INTELNALLIST::Iterator itr = _list.find(key.internalKey());
-        CHAR* buf = itr.key();
-        //TODO: extrace value
+        INTELNALLIST::Iterator itr = _list.find(key.memKey());
+        UINT32 keyLen = 0;
+        UINT32 valLen = 0;
+        CHAR* buf = NULL;
+        CHAR* ptr = NULL;
+        if(!itr.valid())
+        {
+            return STATUS_INVALIAD_KEY;
+        }
+        buf = itr.key();
+        ptr = getVarInt32Ptr(buf, buf + VARINT32_MAX_LEN, keyLen);
+        ptr += keyLen;
+        ptr = getVarInt32Ptr(ptr, ptr + VARINT32_MAX_LEN, valLen);
+        value = BinData(ptr, valLen);
         return STATUS_OK;
     }
 }

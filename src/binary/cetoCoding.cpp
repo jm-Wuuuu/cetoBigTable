@@ -53,4 +53,21 @@ namespace ceto
         }
         return buf + sizeof(val);
     }
+
+    CHAR* getVarInt32Ptr( CHAR* buf, CHAR* limit, UINT32 &len )
+    {
+        if(BYTE_ORDER == LITTLE_ENDIAN)
+        {
+            memcpy(&len, buf, sizeof(len));
+        }
+        else
+        {
+            CHAR* tmpBuf = &len;
+            tmpBuf[0] = buf[3];
+            tmpBuf[1] = buf[2];
+            tmpBuf[2] = buf[1];
+            tmpBuf[3] = buf[0];
+        }
+        return buf + 4;
+    }
 }

@@ -27,17 +27,17 @@ namespace ceto
         CHAR _buf[QUERYKEY_BUF_LEN];
     };
 
+    // MemTableSLKeyComparator define
+    struct MemTableSLKeyComparator
+    {
+        INT32 operator ()(const CHAR* lhs, const CHAR* rhs);
+    };
+
     // CetoMemTableSL define
     class CetoMemTableSL: public CetoMemTable
     {
     public:
         typedef CHAR* KeyType;
-
-        // MemTableSLKeyComparator define
-        struct MemTableSLKeyComparator
-        {
-            INT32 operator ()(const KeyType &lhs, const KeyType &rhs);
-        };
         CetoMemTableSL();
         ~CetoMemTableSL();
         virtual STATUS insert(UINT64 sequenceNumber,
