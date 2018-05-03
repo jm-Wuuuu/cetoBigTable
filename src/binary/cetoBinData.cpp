@@ -6,7 +6,7 @@ namespace ceto
     {
     }
 
-    BinData::BinData(size_t bufLen, CHAR* buff): _len(bufLen), _buf(buff)
+    BinData::BinData(CHAR* buff, size_t bufLen):_buf(buff), _len(bufLen)
     {
     }
 

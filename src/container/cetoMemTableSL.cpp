@@ -1,5 +1,7 @@
 #include "cetoMemTableSL.hpp"
 #include "cetoCoding.hpp"
+#include "cetoLog.hpp"
+#include <cstring>
 namespace ceto
 {
     #define SEQUENCENUM_AND_VALTYPE_LEN     8
@@ -11,14 +13,14 @@ namespace ceto
         ENUM_VALUE_TYPE_DEL = 0x1,
     };
 
-    QueryKey::QueryKey(const BinData&userKey, UINT64 sequenceNumber,
-                        ValueType type)
+    QueryKey::QueryKey(const BinData& userKey, UINT64 sequenceNumber,
+                       ValueType type)
     {
         size_t userKeyLen = userKey.len();
         size_t bufLen = userKeyLen + VARINT32_MAX_LEN +
                         SEQUENCENUM_AND_VALTYPE_LEN ;
         CHAR *dst = nullptr;
-        if(len > QUERYKEY_BUF_LEN)
+        if(bufLen > QUERYKEY_BUF_LEN)
         {
             _memKeyStart = new CHAR[bufLen];
         }
@@ -37,8 +39,7 @@ namespace ceto
 
     BinData QueryKey::userKey() const
     {
-        return BinData(_userKeyStart,
-                        _end - _userKeyStart - SEQUENCENUM_AND_VALTYPE_LEN );
+        return BinData(_userKeyStart, _end - _userKeyStart - SEQUENCENUM_AND_VALTYPE_LEN);
     }
 
     BinData QueryKey::internalKey() const
@@ -48,11 +49,11 @@ namespace ceto
 
     BinData QueryKey::memKey() const
     {
-        return BinData(_memKeyStart, _end - _memKeyStart):
+        return BinData(_memKeyStart, _end - _memKeyStart);
     }
 
     // MemTableSLKeyComparator implement
-    INT32 MemTableSLKeyComparator::operator ()(const CHAR* lhs, const CHAR* rhs)
+    INT32 MemTableSLKeyComparator::operator ()(const CHAR* lhs, const CHAR* rhs) const
     {
         UINT32 lhsLen = 0;
         UINT32 rhsLen = 0;
@@ -63,7 +64,7 @@ namespace ceto
     }
 
     // CetoMemTableSL implement
-    CetoMemTableSL::CetoMemTableSL():_list(_allocator)
+    CetoMemTableSL::CetoMemTableSL():_list(&_allocator)
     {
     }
 
@@ -76,14 +77,13 @@ namespace ceto
         size_t internalKeySize = keySize + sizeof(sequenceNumber);
         size_t buffSize = getVarIntLength(internalKeySize) + internalKeySize
                           + getVarIntLength(valSize) + valSize;
-        UINT64
-        CHAR* p = NULL;
+        CHAR* p = nullptr;
         CHAR* newKey = _allocator.alloc(buffSize);
         if(nullptr == newKey)
         {
             return STATUS_OOM;
         }
-        CHAR* p = encodeVarInt32(newKey, internalKeySize);
+        p = encodeVarInt32(newKey, internalKeySize);
         memcpy(p, key.data(), keySize);
         p += keySize;
         p = encodeInt64(p, sequenceNumber << 8 | type);
@@ -100,7 +100,7 @@ namespace ceto
 
     STATUS CetoMemTableSL::query(const QueryKey& key, BinData& value)
     {
-        INTELNALLIST::Iterator itr = _list.find(key.memKey());
+        INTELNALLIST::Iterator itr = _list.find(key.memKey().data());
         UINT32 keyLen = 0;
         UINT32 valLen = 0;
         CHAR* buf = NULL;

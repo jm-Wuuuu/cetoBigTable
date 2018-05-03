@@ -8,13 +8,13 @@ namespace ceto
     struct BinData
     {
         BinData();
-        BinData(size_t len, CHAR* buf);
+        BinData(CHAR* buf, size_t len);
         BinData(CHAR* str);
-        size_t len()
+        size_t len() const
         {
             return _len;
         }
-        CHAR* data()
+        CHAR* data() const
         {
             return _buf;
         }
@@ -22,8 +22,8 @@ namespace ceto
         BOOLEAN operator <(const BinData& rhs) ;
 
     private:
-        size_t _len;
         CHAR* _buf;
+        size_t _len;
     };
 
 }

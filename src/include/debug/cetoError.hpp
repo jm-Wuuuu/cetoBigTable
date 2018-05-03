@@ -11,6 +11,6 @@ namespace ceto
         STATUS_OOM = -3,
         STATUS_INVALIAD_KEY = -4,
         STATUS_MAX = -1024
-    }
+    };
 }
 #endif

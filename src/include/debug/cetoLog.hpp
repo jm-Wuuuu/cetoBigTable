@@ -3,13 +3,13 @@
 #include <stdarg.h>
 #include <mutex>
 #include <unistd.h>
+#include <string>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
 #include "cetoError.hpp"
 namespace ceto
 {
-    /* Api */
-    inline void LOG_INIT(const string filename, LOG_LEVEL level = DEFAULT);
-    inline void CETOLOG(LOG_LEVEL level, const *fmt, ...);
-
     /* Log level */
     enum LOG_LEVEL
     {
@@ -22,6 +22,10 @@ namespace ceto
         DEFAULT = ERROR
     };
 
+    /* Api */
+    inline void LOG_INIT(const std::string filename, LOG_LEVEL level = DEFAULT);
+    inline void CETOLOG(LOG_LEVEL level, const CHAR *fmt, ...);
+
     class LogSingleton
     {
     public:
@@ -32,11 +36,11 @@ namespace ceto
         {
             _level = level;
         }
-        inline void setLogFileName(const string &filename)
+        inline void setLogFileName(const std::string &filename)
         {
             _filename = filename ;
         }
-        inline const string& getLogFileName()
+        inline const std::string& getLogFileName()
         {
             return  _filename ;
         }
@@ -50,12 +54,11 @@ namespace ceto
     private:
         LogSingleton();
     private:
-        string _filename;
+        std::string _filename;
         LOG_LEVEL _level;
         std::mutex _mutex;
-        static const CHAR *_levelStr[5] = { "SERIOUS", "ERROR",
-                                            "EVENT", "INFO", "DEBUG" };
-
+        constexpr static const CHAR *_levelStr[5] = { "SERIOUS", "ERROR",
+                                                      "EVENT", "INFO", "DEBUG" };
     };
 
     LogSingleton& getCetoLog()
@@ -63,17 +66,17 @@ namespace ceto
         return LogSingleton::singleton;
     }
 
-    inline void LOG_INIT(const string filename, LOG_LEVEL level)
+    inline void LOG_INIT(const std::string& filename, LOG_LEVEL level)
     {
         LogSingleton& logObj = getCetoLog();
         logObj.setLogFileName(filename);
         logObj.setLogLevel(level);
-        if(access(filename, F_OK))
+        if(access(filename.c_str(), F_OK))
         {
-            if(mkdir(LOG_PATH, S_IRWXU | S_IRWXG))
+  /*          if(mkdir(LOG_PATH, S_IRWXU | S_IRWXG))
             {
                 printf("Failed to create dir log\n");
-            }
+            }*/
         }
     }
 
@@ -85,7 +88,7 @@ namespace ceto
         va_end(ap);
     }
 
-    // TODO
-    inline TEST_RESULT(BOOLEAN condition, STATUS retCode, const CHAR* fmt, ...);
+    // TODO#
+    inline void TEST_RESULT(BOOLEAN condition, STATUS retCode, const CHAR* fmt, ...);
 }
 #endif

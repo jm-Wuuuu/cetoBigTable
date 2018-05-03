@@ -2,7 +2,7 @@
 #define CETO_TYPE_HPP
 
 #include <cstdint>
-
+#include <cstddef>
 namespace ceto
 {
     typedef int16_t    INT16;
@@ -18,7 +18,6 @@ namespace ceto
     typedef bool       BOOLEAN;
     typedef float      FLOAT32;
     typedef double     FLOAT64;
-
 }
 
 #endif

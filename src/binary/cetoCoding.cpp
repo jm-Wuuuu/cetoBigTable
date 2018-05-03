@@ -54,7 +54,7 @@ namespace ceto
         return buf + sizeof(val);
     }
 
-    CHAR* getVarInt32Ptr( CHAR* buf, CHAR* limit, UINT32 &len )
+    CHAR* getVarInt32Ptr( const CHAR* buf, const CHAR* limit, UINT32 &len )
     {
         if(BYTE_ORDER == LITTLE_ENDIAN)
         {

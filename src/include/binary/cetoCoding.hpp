@@ -14,6 +14,6 @@ namespace ceto
 
     CHAR* encodeInt64(CHAR* buf, UINT64 val);
 
-    CHAR* getVarInt32Ptr( CHAR* buf, CHAR* limit, UINT32 &len );
+    CHAR* getVarInt32Ptr( const CHAR* buf, const CHAR* limit, UINT32 &len );
 }
 #endif
