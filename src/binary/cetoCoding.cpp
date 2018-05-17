@@ -1,5 +1,7 @@
 #include "cetoCoding.hpp"
 #include "cetoPortable.hpp"
+#include <cstring>
+using std::memcpy;
 namespace ceto
 {
     size_t getVarIntLength(UINT64 length)
@@ -46,7 +48,7 @@ namespace ceto
             buf[1] = (val >> 8) && 0xff;
             buf[2] = (val >> 16) && 0xff;
             buf[3] = (val >> 24) && 0xff;
-            buf[4] = (val >> 32) && 0xff
+            buf[4] = (val >> 32) && 0xff;
             buf[5] = (val >> 40) && 0xff;
             buf[6] = (val >> 48) && 0xff;
             buf[7] = (val >> 56) && 0xff;
@@ -62,12 +64,12 @@ namespace ceto
         }
         else
         {
-            CHAR* tmpBuf = &len;
+            CHAR* tmpBuf = reinterpret_cast<CHAR*>(&len);
             tmpBuf[0] = buf[3];
             tmpBuf[1] = buf[2];
             tmpBuf[2] = buf[1];
             tmpBuf[3] = buf[0];
         }
-        return buf + 4;
+        return const_cast<CHAR*>((buf + 4));
     }
 }

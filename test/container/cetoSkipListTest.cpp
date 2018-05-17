@@ -23,13 +23,12 @@ protected:
         Test::TearDown();
     }
     MemAllocator allocator ;
-    SkipList< MemTableSLKey, MemAllocator, MemTableSLKeyComparator > list;
+    CetoMemTableSL list;
 };
 
 TEST_F( CetoSkipListTest, listinsert )
 {
-    MemTableSLKey key
-    list.insert();
+    list.insert( 1,);
     Iterator itr = list.begin();
     while( itr != list.end() )
     {

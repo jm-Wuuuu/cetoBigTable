@@ -1,8 +1,9 @@
-include "cetoBinData.hpp"
-
+#include "cetoBinData.hpp"
+#include <cstring>
+using std::strlen;
 namespace ceto
 {
-    BinData::BinData(): _len(0), _buf(nullptr)
+    BinData::BinData():_buf(nullptr), _len(0)
     {
     }
 
@@ -10,7 +11,7 @@ namespace ceto
     {
     }
 
-    BinData::BinData(CHAR* str): _len(strlen(str)), _buf(str)
+    BinData::BinData(CHAR* str):_buf(str), _len(strlen(str))
     {
     }
 
@@ -23,8 +24,8 @@ namespace ceto
     {
         size_t leftLen = lhs.len();
         size_t rightLen = rhs.len();
-        const CHAR* leftBuf = &lhs.data();
-        const CHAR* rightBuf = &rhs.data();
+        const CHAR* leftBuf = lhs.data();
+        const CHAR* rightBuf = rhs.data();
         UINT32 minLen = leftLen > rightLen ? leftLen: rightLen;
         INT16 result = 0;
 
